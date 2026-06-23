@@ -1,186 +1,40 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { 
   View, 
   Text, 
   StyleSheet, 
   TouchableOpacity, 
-  ScrollView, 
-  ActivityIndicator, 
-  Modal, 
-  Alert,
-  Platform,
-  Dimensions
+  ScrollView,
+  Platform
 } from 'react-native';
-import * as AppleAuthentication from 'expo-apple-authentication';
-import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
 
 const LandingScreen = ({ navigation }) => {
-  const [authenticating, setAuthenticating] = useState(false);
-  const [providerName, setProviderName] = useState('');
-
-  // Configure Google Sign-In on mount
-  useEffect(() => {
-    try {
-      GoogleSignin.configure({
-        // Configuration options can be set here when API keys/Client IDs are ready
-      });
-    } catch (e) {
-      console.warn('GoogleSignin configure warning:', e.message);
-    }
-  }, []);
-
-  // Standard fallback mock login for testing environments (Simulator / Expo Go / Web)
-  const triggerMockAuth = (provider) => {
-    setProviderName(provider);
-    setAuthenticating(true);
-
-    setTimeout(() => {
-      setAuthenticating(false);
-      
-      let initialNickname = '';
-      let initialEmail = '';
-      if (provider === 'Apple') {
-        initialNickname = 'Apple User';
-        initialEmail = 'user@icloud.com';
-      } else if (provider === 'Google') {
-        initialNickname = 'Google User';
-        initialEmail = 'user@gmail.com';
-      }
-
-      navigation.navigate('HomeSetup', {
-        authProvider: provider.toLowerCase(),
-        initialNickname,
-        initialEmail
-      });
-    }, 1200);
-  };
-
-  // Google Sign-In logic
-  const handleGoogleAuth = async () => {
-    if (Platform.OS === 'web') {
-      triggerMockAuth('Google');
-      return;
-    }
-    try {
-      setProviderName('Google');
-      setAuthenticating(true);
-
-      await GoogleSignin.hasPlayServices();
-      const userInfo = await GoogleSignin.signIn();
-      setAuthenticating(false);
-
-      const user = userInfo.data?.user || userInfo.user;
-      const nickname = user?.name || 'Google User';
-      const email = user?.email || 'user@gmail.com';
-
-      navigation.navigate('HomeSetup', {
-        authProvider: 'google',
-        initialNickname: nickname,
-        initialEmail: email
-      });
-    } catch (error) {
-      setAuthenticating(false);
-      console.error('Google Sign-In error details:', error);
-
-      if (error.code === statusCodes.SIGN_IN_CANCELLED) {
-        Alert.alert('Cancelled', 'Google Sign-In was cancelled.');
-      } else if (error.code === statusCodes.IN_PROGRESS) {
-        Alert.alert('Status', 'Sign-in is already in progress.');
-      } else {
-        Alert.alert(
-          'Google Auth Notice',
-          `Native Google Authentication requires client configurations & custom dev builds.\n\nProceeding with mock authentication for development testing.`,
-          [{ text: 'Continue Test', onPress: () => triggerMockAuth('Google') }]
-        );
-      }
-    }
-  };
-
-  // Apple Authentication logic
-  const handleAppleAuth = async () => {
-    if (Platform.OS === 'web') {
-      triggerMockAuth('Apple');
-      return;
-    }
-    try {
-      setProviderName('Apple');
-      setAuthenticating(true);
-
-      const isAvailable = await AppleAuthentication.isAvailableAsync();
-      if (!isAvailable) {
-        setAuthenticating(false);
-        Alert.alert(
-          'Apple Auth Notice',
-          'Apple Authentication is not supported on this platform/device. Proceeding with mock authentication for development testing.',
-          [{ text: 'Continue Test', onPress: () => triggerMockAuth('Apple') }]
-        );
-        return;
-      }
-
-      const credential = await AppleAuthentication.signInAsync({
-        requestedScopes: [
-          AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
-          AppleAuthentication.AppleAuthenticationScope.EMAIL,
-        ],
-      });
-      setAuthenticating(false);
-
-      const nickname = credential.fullName?.givenName 
-        ? `${credential.fullName.givenName} ${credential.fullName.familyName || ''}`.trim()
-        : 'Apple User';
-      const email = credential.email || 'user@icloud.com';
-
-      navigation.navigate('HomeSetup', {
-        authProvider: 'apple',
-        initialNickname: nickname,
-        initialEmail: email
-      });
-    } catch (error) {
-      setAuthenticating(false);
-      console.error('Apple Verification error details:', error);
-
-      if (error.code === 'ERR_CANCELED') {
-        Alert.alert('Cancelled', 'Apple Verification was cancelled.');
-      } else {
-        Alert.alert(
-          'Apple Auth Notice',
-          `Native Apple Authentication failed.\n\nProceeding with mock authentication for development testing.`,
-          [{ text: 'Continue Test', onPress: () => triggerMockAuth('Apple') }]
-        );
-      }
-    }
-  };
-
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      {/* Auth Modal Loading Overlay */}
-      <Modal transparent={true} visible={authenticating} animationType="fade">
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalCard}>
-            <ActivityIndicator size="large" color="#56e472" />
-            <Text style={styles.modalText}>Connecting to {providerName}...</Text>
-            <Text style={styles.modalSubText}>Securing verification handshake</Text>
-          </View>
-        </View>
-      </Modal>
+      {/* Top Header Bar */}
+      <View style={styles.header}>
+        <Text style={styles.headerLogo}>Eat & Fit</Text>
+        <TouchableOpacity 
+          style={styles.headerLoginBtn}
+          onPress={() => navigation.navigate('Auth')}
+        >
+          <Text style={styles.headerLoginText}>Login</Text>
+        </TouchableOpacity>
+      </View>
 
       {/* Hero Section */}
       <View style={styles.heroSection}>
-        <Text style={styles.appTitle}>EAT & FIT</Text>
         <Text style={styles.tagline}>Precision Fitness, <Text style={styles.greenText}>AI-Powered</Text></Text>
         <Text style={styles.description}>
           The ultimate high-performance ecosystem integrating clinical nutritional precision with data-driven movement. Experience health tracking re-engineered for the elite.
         </Text>
-      </View>
-
-      {/* Primary Authentication Portal */}
-      <View style={styles.authContainer}>
-        <Text style={styles.authTitle}>Login / Authenticate Identity</Text>
-        <TouchableOpacity style={styles.appleButton} onPress={handleAppleAuth}>
-          <Text style={styles.appleButtonText}> Sign in with Apple</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.googleButton} onPress={handleGoogleAuth}>
-          <Text style={styles.googleButtonText}>👤 Sign in with Google</Text>
+        
+        {/* Main Hero CTA */}
+        <TouchableOpacity 
+          style={styles.heroCtaBtn}
+          onPress={() => navigation.navigate('Auth')}
+        >
+          <Text style={styles.heroCtaText}>Get Started  →</Text>
         </TouchableOpacity>
       </View>
 
@@ -217,14 +71,13 @@ const LandingScreen = ({ navigation }) => {
         </View>
       </View>
 
-      {/* Feature Section 2: Macro Analytics & wearable sync */}
+      {/* Feature Section 2: Macro Analytics & Wearable Sync */}
       <View style={styles.section}>
         <Text style={styles.sectionHeader}>Master Your Macros</Text>
         <Text style={styles.sectionSub}>
           Deep-dive into physiological metrics. Seamless wearable synchronization keeps your stats updated.
         </Text>
 
-        {/* Macro analytics progress mock */}
         <View style={styles.glassCard}>
           <View style={styles.progressHeader}>
             <Text style={styles.progressTitle}>Daily Target Progress</Text>
@@ -237,7 +90,7 @@ const LandingScreen = ({ navigation }) => {
             </View>
           </View>
 
-          {/* Sync status card */}
+          {/* Sync status cards */}
           <View style={styles.syncRow}>
             <View style={styles.syncCard}>
               <Text style={styles.syncTitle}>Apple HealthKit</Text>
@@ -251,7 +104,7 @@ const LandingScreen = ({ navigation }) => {
         </View>
       </View>
 
-      {/* Feature Section 3: Expert Led Programs */}
+      {/* Feature Section 3: Expert-Led Programs */}
       <View style={styles.section}>
         <Text style={styles.sectionHeader}>Expert-Led Programs</Text>
         <Text style={styles.sectionSub}>
@@ -301,14 +154,14 @@ const LandingScreen = ({ navigation }) => {
         </View>
       </View>
 
-      {/* Final Portal Trigger */}
+      {/* Final CTA Portal Trigger */}
       <View style={styles.footerPortal}>
         <Text style={styles.footerText}>Ready to re-engineer your health?</Text>
-        <TouchableOpacity style={styles.appleButton} onPress={handleAppleAuth}>
-          <Text style={styles.appleButtonText}> Sign in with Apple</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.googleButton} onPress={handleGoogleAuth}>
-          <Text style={styles.googleButtonText}>👤 Sign in with Google</Text>
+        <TouchableOpacity 
+          style={styles.footerCtaBtn}
+          onPress={() => navigation.navigate('Auth')}
+        >
+          <Text style={styles.footerCtaText}>Start Your Transformation</Text>
         </TouchableOpacity>
       </View>
       
@@ -323,44 +176,36 @@ const styles = StyleSheet.create({
     backgroundColor: '#131315',
     padding: 20,
   },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.85)',
-    justifyContent: 'center',
+  header: {
+    marginTop: 20,
+    marginBottom: 30,
+    flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
+    width: '100%',
   },
-  modalCard: {
+  headerLogo: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#56e472',
+  },
+  headerLoginBtn: {
     backgroundColor: '#1c1c1e',
-    borderRadius: 16,
-    padding: 24,
-    width: '80%',
-    alignItems: 'center',
+    borderRadius: 8,
+    paddingVertical: 6,
+    paddingHorizontal: 16,
     borderWidth: 1,
     borderColor: '#3a3a3c',
   },
-  modalText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#ffffff',
-    marginTop: 16,
-  },
-  modalSubText: {
-    fontSize: 12,
-    color: '#939397',
-    marginTop: 6,
+  headerLoginText: {
+    color: '#56e472',
+    fontSize: 13,
+    fontWeight: '600',
   },
   heroSection: {
     alignItems: 'center',
-    marginTop: 40,
-    marginBottom: 20,
+    marginBottom: 32,
     width: '100%',
-  },
-  appTitle: {
-    fontSize: 18,
-    fontWeight: '800',
-    color: '#56e472',
-    letterSpacing: 2,
-    marginBottom: 8,
   },
   tagline: {
     fontSize: 28,
@@ -379,49 +224,23 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 22,
     paddingHorizontal: 8,
+    marginBottom: 24,
   },
-  authContainer: {
-    backgroundColor: '#1c1c1e',
-    borderRadius: 20,
-    padding: 18,
-    borderWidth: 1,
-    borderColor: '#3a3a3c',
-    marginBottom: 28,
-    width: '100%',
-  },
-  authTitle: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: '#e4e2e4',
-    textAlign: 'center',
-    marginBottom: 14,
-    letterSpacing: 0.5,
-  },
-  appleButton: {
-    backgroundColor: '#ffffff',
-    width: '100%',
+  heroCtaBtn: {
+    backgroundColor: '#56e472',
     paddingVertical: 14,
+    paddingHorizontal: 36,
     borderRadius: 12,
     alignItems: 'center',
-    marginBottom: 10,
+    shadowColor: '#56e472',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
+    elevation: 4,
   },
-  appleButtonText: {
-    color: '#000000',
-    fontSize: 15,
-    fontWeight: 'bold',
-  },
-  googleButton: {
-    backgroundColor: '#2a2a2c',
-    width: '100%',
-    paddingVertical: 14,
-    borderRadius: 12,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#3e3e42',
-  },
-  googleButtonText: {
-    color: '#ffffff',
-    fontSize: 15,
+  heroCtaText: {
+    color: '#002107',
+    fontSize: 16,
     fontWeight: 'bold',
   },
   section: {
@@ -658,6 +477,23 @@ const styles = StyleSheet.create({
     color: '#ffffff',
     marginBottom: 16,
     textAlign: 'center',
+  },
+  footerCtaBtn: {
+    backgroundColor: '#56e472',
+    paddingVertical: 16,
+    width: '100%',
+    borderRadius: 12,
+    alignItems: 'center',
+    shadowColor: '#56e472',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
+    elevation: 4,
+  },
+  footerCtaText: {
+    color: '#002107',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });
 

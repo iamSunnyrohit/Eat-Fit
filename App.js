@@ -3,6 +3,7 @@ import { StatusBar } from 'expo-status-bar';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import LandingScreen from './src/screens/LandingScreen';
+import AuthScreen from './src/screens/AuthScreen';
 import HomeSetupScreen from './src/screens/HomeSetupScreen';
 import HomeScreen from './src/screens/HomeScreen';
 
@@ -20,6 +21,7 @@ export default function App() {
         }}
       >
         <Stack.Screen name="Landing" component={LandingScreen} />
+        <Stack.Screen name="Auth" component={AuthScreen} />
         <Stack.Screen name="HomeSetup" component={HomeSetupScreen} />
         <Stack.Screen name="Home" component={HomeScreen} />
       </Stack.Navigator>
