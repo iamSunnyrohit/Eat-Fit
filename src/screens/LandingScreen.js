@@ -1,9 +1,9 @@
 import React from 'react';
-import { 
-  View, 
-  Text, 
-  StyleSheet, 
-  TouchableOpacity, 
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
   ScrollView,
   Platform
 } from 'react-native';
@@ -14,7 +14,7 @@ const LandingScreen = ({ navigation }) => {
       {/* Top Header Bar */}
       <View style={styles.header}>
         <Text style={styles.headerLogo}>Eat & Fit</Text>
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.headerLoginBtn}
           onPress={() => navigation.navigate('Auth')}
         >
@@ -28,9 +28,9 @@ const LandingScreen = ({ navigation }) => {
         <Text style={styles.description}>
           The ultimate high-performance ecosystem integrating clinical nutritional precision with data-driven movement. Experience health tracking re-engineered for the elite.
         </Text>
-        
+
         {/* Main Hero CTA */}
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.heroCtaBtn}
           onPress={() => navigation.navigate('Auth')}
         >
@@ -148,23 +148,49 @@ const LandingScreen = ({ navigation }) => {
         <Text style={styles.proDesc}>
           Access global leaderboards, expert forums, and verified bio-data metrics.
         </Text>
+
+        {/* Monthly Plan */}
+        <View style={[styles.priceCard, { marginBottom: 10 }]}>
+          <View>
+            <Text style={styles.priceTitle}>Monthly Plan</Text>
+            <Text style={styles.priceSub}>Billed every month</Text>
+          </View>
+          <Text style={styles.priceVal}>₹300 <Text style={styles.pricePeriod}>/ mo</Text></Text>
+        </View>
+
+        {/* 3-Month Plan */}
+        <View style={[styles.priceCard, styles.popularCard, { marginBottom: 10 }]}>
+          <View>
+            <View style={styles.badgeContainer}>
+              <Text style={styles.badgeText}>POPULAR</Text>
+            </View>
+            <Text style={styles.priceTitle}>3-Month Plan</Text>
+            <Text style={styles.priceSub}>Billed quarterly (₹266/mo)</Text>
+          </View>
+          <Text style={styles.priceVal}>₹799 <Text style={styles.pricePeriod}>/ 3 mos</Text></Text>
+        </View>
+
+        {/* Annual Plan */}
         <View style={styles.priceCard}>
-          <Text style={styles.priceTitle}>PRO Monthly</Text>
-          <Text style={styles.priceVal}>$19.99 / mo</Text>
+          <View>
+            <Text style={styles.priceTitle}>Annual Plan</Text>
+            <Text style={styles.priceSub}>Billed yearly (₹150/mo)</Text>
+          </View>
+          <Text style={styles.priceVal}>₹1800 <Text style={styles.pricePeriod}>/ yr</Text></Text>
         </View>
       </View>
 
       {/* Final CTA Portal Trigger */}
       <View style={styles.footerPortal}>
         <Text style={styles.footerText}>Ready to re-engineer your health?</Text>
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.footerCtaBtn}
           onPress={() => navigation.navigate('Auth')}
         >
           <Text style={styles.footerCtaText}>Start Your Transformation</Text>
         </TouchableOpacity>
       </View>
-      
+
       <View style={{ height: 40 }} />
     </ScrollView>
   );
@@ -456,15 +482,42 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#3a3a3c',
   },
+  popularCard: {
+    borderColor: '#56e472',
+    borderWidth: 1.5,
+  },
   priceTitle: {
     fontSize: 14,
     fontWeight: 'bold',
     color: '#ffffff',
   },
+  priceSub: {
+    fontSize: 11,
+    color: '#939397',
+    marginTop: 3,
+  },
   priceVal: {
     fontSize: 15,
     fontWeight: 'bold',
     color: '#56e472',
+  },
+  pricePeriod: {
+    fontSize: 11,
+    color: '#939397',
+    fontWeight: 'normal',
+  },
+  badgeContainer: {
+    backgroundColor: '#56e472',
+    borderRadius: 4,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    alignSelf: 'flex-start',
+    marginBottom: 4,
+  },
+  badgeText: {
+    color: '#002107',
+    fontSize: 9,
+    fontWeight: 'bold',
   },
   footerPortal: {
     alignItems: 'center',
