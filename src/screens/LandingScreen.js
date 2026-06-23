@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  View, 
-  Text, 
-  StyleSheet, 
-  TouchableOpacity, 
-  ScrollView, 
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
   ActivityIndicator,
   Modal,
   Alert,
@@ -36,7 +36,7 @@ const LandingScreen = ({ navigation }) => {
 
     setTimeout(() => {
       setAuthenticating(false);
-      
+
       let initialNickname = '';
       let initialEmail = '';
       if (provider === 'Apple') {
@@ -118,7 +118,7 @@ const LandingScreen = ({ navigation }) => {
       });
       setAuthenticating(false);
 
-      const nickname = credential.fullName?.givenName 
+      const nickname = credential.fullName?.givenName
         ? `${credential.fullName.givenName} ${credential.fullName.familyName || ''}`.trim()
         : 'Apple User';
       const email = credential.email || 'user@icloud.com';
@@ -169,7 +169,7 @@ const LandingScreen = ({ navigation }) => {
       {/* Core Use Cases Definition */}
       <View style={styles.useCaseContainer}>
         <Text style={styles.sectionHeader}>Why Eat and Fit?</Text>
-        
+
         <View style={styles.useCaseCard}>
           <Text style={styles.useCaseEmoji}>🔄</Text>
           <View style={styles.useCaseTextContent}>
@@ -214,10 +214,10 @@ const LandingScreen = ({ navigation }) => {
 
       {/* Authentication Buttons Section */}
       <View style={styles.authButtonsContainer}>
-        <Text style={styles.authTitle}>Login / Onboard Identity</Text>
+        <Text style={styles.authTitle}>Login</Text>
 
         {/* Apple Authentication */}
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.appleButton}
           onPress={handleAppleAuth}
         >
@@ -225,11 +225,11 @@ const LandingScreen = ({ navigation }) => {
         </TouchableOpacity>
 
         {/* Google Authentication */}
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.googleButton}
           onPress={handleGoogleAuth}
         >
-          <Text style={styles.googleButtonText}>👤 Sign in with Google</Text>
+          <Text style={styles.googleButtonText}>Sign in with Google</Text>
         </TouchableOpacity>
       </View>
     </ScrollView>

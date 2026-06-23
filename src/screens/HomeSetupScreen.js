@@ -59,7 +59,14 @@ const HomeSetupScreen = ({ route, navigation }) => {
         Alert.alert(
           'Success! 🎉',
           `Profile for ${data.nickname} has been successfully initialized! Target calories: ${data.dailyCalorieTarget} kcal.`,
-          [{ text: 'Great!', onPress: () => navigation.navigate('Landing') }] // Loop back or continue
+          [{ 
+            text: 'Great!', 
+            onPress: () => navigation.navigate('Home', { 
+              profileId: data._id, 
+              nickname: data.nickname, 
+              dailyCalorieTarget: data.dailyCalorieTarget 
+            }) 
+          }]
         );
       } else {
         throw new Error(data.message || 'Server returned an error');
@@ -69,7 +76,14 @@ const HomeSetupScreen = ({ route, navigation }) => {
       Alert.alert(
         'Connection Error',
         `Unable to reach the server. Let's mock a local success so you can see the flow. Saved draft: ${nickname} (${calorieTarget} kcal).`,
-        [{ text: 'Continue', onPress: () => navigation.navigate('Landing') }]
+        [{ 
+          text: 'Continue', 
+          onPress: () => navigation.navigate('Home', { 
+            profileId: `mock-draft-${Date.now()}`, 
+            nickname: nickname.trim(), 
+            dailyCalorieTarget: parseInt(calorieTarget, 10) || 2000 
+          }) 
+        }]
       );
     } finally {
       setLoading(false);
