@@ -5,7 +5,8 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
-  Platform
+  Platform,
+  Image
 } from 'react-native';
 
 const LandingScreen = ({ navigation }) => {
@@ -46,6 +47,11 @@ const LandingScreen = ({ navigation }) => {
         </Text>
 
         <View style={styles.mockScannerCard}>
+          <Image
+            source={{ uri: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDpOwktnkXU58s3Mj6UiWnSpYHjJ1yz_4pc2Atg1AnUVj0D8Mkfo9DTA6h6x6Qy7u_XFcqE3n0QOA3c4WhKnMTDJNZOxz9-hc6_JfkETlvp1EusqjorFDXhLgcKsEgPyrxXDV2gZxDJd8TE8nh2KlI2YWxHOfhA5JSqRE8RaFQcVLjGxhp1czTwpTihjRyQx3PV_lO_n_Hk8REmFVNUesaVDuf05sQ5nn_bCgRxGgyqFu3PNq8PZ2g1hYiw0Qg9OPfAEmWwJkyjHQ' }}
+            style={styles.mealImage}
+            resizeMode="cover"
+          />
           <View style={styles.scannerHeader}>
             <View style={styles.scannerBadge}>
               <Text style={styles.scannerBadgeText}>● SCANNING...</Text>
@@ -114,6 +120,12 @@ const LandingScreen = ({ navigation }) => {
         <View style={styles.programsList}>
           {/* Yoga Card */}
           <View style={[styles.programCard, { borderLeftColor: '#56e472' }]}>
+            <Image
+              source={{ uri: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBrZ_Zouy3bGmwdbCRqEfh1no9AP6svHumn01VlzCxDASEe2F51Z79tTad9PBg2-tYgcf6hQAObrQnPSCgLd5KmlNotsrfcGcVzCgQkuQrgUQEiJMw87yvi9iK6x5643ZaDrbd3OHkFte_8NkwLJjtvIFuGQdgdC_PvYNt5VFxl99wf31IWzwS6Wb_RJQD-3aGV63QdHola6JOJb12Yg91bOHGhfX3XMyEJZihW9__stoyTE8fg7fcMsfy3v1LyUjBx8sXQQMIMhw' }}
+              style={styles.programImage}
+              resizeMode="cover"
+            />
+            <View style={styles.imageOverlay} />
             <View style={styles.programContent}>
               <Text style={styles.programLabel}>MOBILITY</Text>
               <Text style={styles.programTitleText}>Athletic Yoga</Text>
@@ -123,6 +135,12 @@ const LandingScreen = ({ navigation }) => {
 
           {/* Strength Card */}
           <View style={[styles.programCard, { borderLeftColor: '#aac7ff' }]}>
+            <Image
+              source={{ uri: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCcx6Tm457lPhQBgKrFCsk4BePcOktwGk7hlKRv4Sj5MDhPPgzZ1Ezuwc8NpWSMDwnDbO91BXwr9oE_JghOo8Z4JY-q64HTP1_asKhv3-TrQZumthJKg7pSv85Fsc22PfIdvBozCt0wVVBQUXHGhH5cSOWxt6ZCFqzjaiUG_1kJFm1JEz65arklExHq-7QGk7jzWNR3RmaPT5xnMt3hCUPE19DdTjTHfvigU9TkwGzwVnuK3FL-tSdlw2X44VLCs4zgMhrSo0yWJQ' }}
+              style={styles.programImage}
+              resizeMode="cover"
+            />
+            <View style={styles.imageOverlay} />
             <View style={styles.programContent}>
               <Text style={styles.programLabel}>HYPERTROPHY</Text>
               <Text style={styles.programTitleText}>Strength & Power</Text>
@@ -132,6 +150,12 @@ const LandingScreen = ({ navigation }) => {
 
           {/* Pilates Card */}
           <View style={[styles.programCard, { borderLeftColor: '#ffb8af' }]}>
+            <Image
+              source={{ uri: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCmgg0nh2TgLSZbCaEx9vE8oVJTCpWdGRtXxXmvVpwvmnAMb-GuyO9U7zxkOR4fctLz_BM0cxmTx0CoNryi1ZI4eeUrqtrQMlt53DHsKB_gqZx6BK11VZ7HhqSyruMpdDqC5eOLbqTeEaB4fv1OUtWOcguj8UBgVDKD4O4vXwao7eCCtMBFNj8KjUlG_OV9zU08gBlP25bgkbuO8laFK30i4_rMVXXYRPQgEPuzUp7WsDMWjHryTeCPafH5-yfcwUipY_TJ1LiMNg' }}
+              style={styles.programImage}
+              resizeMode="cover"
+            />
+            <View style={styles.imageOverlay} />
             <View style={styles.programContent}>
               <Text style={styles.programLabel}>CORE STABILITY</Text>
               <Text style={styles.programTitleText}>Advanced Pilates</Text>
@@ -423,9 +447,11 @@ const styles = StyleSheet.create({
     borderLeftWidth: 4,
     borderWidth: 1,
     borderColor: '#3a3a3c',
+    overflow: 'hidden',
   },
   programContent: {
     flex: 1,
+    zIndex: 1,
   },
   programLabel: {
     fontSize: 10,
@@ -547,6 +573,21 @@ const styles = StyleSheet.create({
     color: '#002107',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  mealImage: {
+    width: '100%',
+    height: 180,
+    borderRadius: 14,
+    marginBottom: 12,
+  },
+  programImage: {
+    ...StyleSheet.absoluteFillObject,
+    borderRadius: 14,
+  },
+  imageOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(19, 19, 21, 0.75)',
+    borderRadius: 14,
   },
 });
 
