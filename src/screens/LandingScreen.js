@@ -57,6 +57,10 @@ const LandingScreen = ({ navigation }) => {
 
   // Google Sign-In logic
   const handleGoogleAuth = async () => {
+    if (Platform.OS === 'web') {
+      triggerMockAuth('Google');
+      return;
+    }
     try {
       setProviderName('Google');
       setAuthenticating(true);
@@ -95,6 +99,10 @@ const LandingScreen = ({ navigation }) => {
 
   // Apple Authentication logic
   const handleAppleAuth = async () => {
+    if (Platform.OS === 'web') {
+      triggerMockAuth('Apple');
+      return;
+    }
     try {
       setProviderName('Apple');
       setAuthenticating(true);
