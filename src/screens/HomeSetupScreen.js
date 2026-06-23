@@ -15,8 +15,11 @@ import {
 // Standard local API URL. For Android emulator, use 10.0.2.2. For iOS/Web, use localhost.
 const API_BASE_URL = Platform.OS === 'android' ? 'http://10.0.2.2:5002' : 'http://localhost:5002';
 
-const HomeSetupScreen = ({ navigation }) => {
-  const [nickname, setNickname] = useState('');
+const HomeSetupScreen = ({ route, navigation }) => {
+  const { authProvider = 'guest', initialNickname = '', initialEmail = '' } = route.params || {};
+
+  const [nickname, setNickname] = useState(initialNickname);
+  const [email, setEmail] = useState(initialEmail);
   const [calorieTarget, setCalorieTarget] = useState('2000');
   const [syncHealthDevices, setSyncHealthDevices] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -42,9 +45,11 @@ const HomeSetupScreen = ({ navigation }) => {
         },
         body: JSON.stringify({
           nickname: nickname.trim(),
+          email: email.trim(),
           dailyCalorieTarget: calorieVal,
           syncHealthDevices,
           healthPlatform: Platform.OS === 'ios' ? 'ios' : Platform.OS === 'android' ? 'android' : 'none',
+          authProvider,
         }),
       });
 
@@ -78,6 +83,15 @@ const HomeSetupScreen = ({ navigation }) => {
         <Text style={styles.subtitle}>Configure your daily targets & telemetry integration</Text>
       </View>
 
+      {/* Authentication Status Badge */}
+      {authProvider !== 'guest' && (
+        <View style={styles.authBadge}>
+          <Text style={styles.authBadgeText}>
+            ✓ Signed in with {authProvider === 'apple' ? 'Apple ' : 'Google 👤'}
+          </Text>
+        </View>
+      )}
+
       <View style={styles.form}>
         {/* Nickname Input */}
         <View style={styles.inputGroup}>
@@ -89,6 +103,27 @@ const HomeSetupScreen = ({ navigation }) => {
             value={nickname}
             onChangeText={setNickname}
           />
+        </View>
+
+        {/* Email Input */}
+        <View style={styles.inputGroup}>
+          <Text style={styles.label}>Email Address</Text>
+          <TextInput
+            style={[
+              styles.input, 
+              authProvider !== 'guest' && styles.disabledInput
+            ]}
+            placeholder="user@example.com"
+            placeholderTextColor="#6c7281"
+            keyboardType="email-address"
+            autoCapitalize="none"
+            editable={authProvider === 'guest'}
+            value={email}
+            onChangeText={setEmail}
+          />
+          {authProvider !== 'guest' && (
+            <Text style={styles.inputHelperText}>Email managed by your auth provider.</Text>
+          )}
         </View>
 
         {/* Caloric Target Input */}
@@ -149,7 +184,7 @@ const styles = StyleSheet.create({
   },
   header: {
     marginTop: 40,
-    marginBottom: 20,
+    marginBottom: 10,
   },
   title: {
     fontSize: 28,
@@ -162,13 +197,29 @@ const styles = StyleSheet.create({
     marginTop: 6,
     lineHeight: 20,
   },
+  authBadge: {
+    backgroundColor: 'rgba(52, 199, 89, 0.15)',
+    borderRadius: 8,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    alignSelf: 'flex-start',
+    marginTop: 10,
+    marginBottom: 5,
+    borderWidth: 1,
+    borderColor: 'rgba(52, 199, 89, 0.3)',
+  },
+  authBadgeText: {
+    color: '#34c759',
+    fontSize: 13,
+    fontWeight: '600',
+  },
   form: {
     flex: 1,
     justifyContent: 'center',
-    marginVertical: 20,
+    marginVertical: 15,
   },
   inputGroup: {
-    marginBottom: 24,
+    marginBottom: 20,
   },
   label: {
     fontSize: 14,
@@ -185,6 +236,16 @@ const styles = StyleSheet.create({
     fontSize: 16,
     borderWidth: 1,
     borderColor: '#2c2e3a',
+  },
+  disabledInput: {
+    backgroundColor: '#171921',
+    color: '#6c7281',
+    borderColor: '#1f222b',
+  },
+  inputHelperText: {
+    color: '#6c7281',
+    fontSize: 11,
+    marginTop: 4,
   },
   switchGroup: {
     flexDirection: 'row',

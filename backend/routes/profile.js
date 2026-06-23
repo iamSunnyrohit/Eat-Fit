@@ -12,7 +12,7 @@ const isDbConnected = () => mongoose.connection.readyState === 1;
 // @route   POST api/profiles
 // @desc    Create a new profile
 router.post('/', async (req, res) => {
-  const { nickname, dailyCalorieTarget, syncHealthDevices, healthPlatform } = req.body;
+  const { nickname, dailyCalorieTarget, syncHealthDevices, healthPlatform, authProvider, email } = req.body;
 
   if (!nickname) {
     return res.status(400).json({ message: 'Nickname is required.' });
@@ -22,7 +22,9 @@ router.post('/', async (req, res) => {
     nickname,
     dailyCalorieTarget: dailyCalorieTarget || 2000,
     syncHealthDevices: syncHealthDevices || false,
-    healthPlatform: healthPlatform || 'none'
+    healthPlatform: healthPlatform || 'none',
+    authProvider: authProvider || 'guest',
+    email: email || ''
   };
 
   if (isDbConnected()) {
@@ -49,7 +51,7 @@ router.post('/', async (req, res) => {
 // @route   PUT api/profiles/:id
 // @desc    Update profile by ID
 router.put('/:id', async (req, res) => {
-  const { nickname, dailyCalorieTarget, syncHealthDevices, healthPlatform } = req.body;
+  const { nickname, dailyCalorieTarget, syncHealthDevices, healthPlatform, authProvider, email } = req.body;
 
   if (isDbConnected()) {
     try {
@@ -59,6 +61,8 @@ router.put('/:id', async (req, res) => {
         if (dailyCalorieTarget !== undefined) profile.dailyCalorieTarget = dailyCalorieTarget;
         if (syncHealthDevices !== undefined) profile.syncHealthDevices = syncHealthDevices;
         if (healthPlatform !== undefined) profile.healthPlatform = healthPlatform;
+        if (authProvider !== undefined) profile.authProvider = authProvider;
+        if (email !== undefined) profile.email = email;
 
         const updatedProfile = await profile.save();
         return res.json(updatedProfile);
@@ -78,6 +82,8 @@ router.put('/:id', async (req, res) => {
   if (dailyCalorieTarget !== undefined) profile.dailyCalorieTarget = dailyCalorieTarget;
   if (syncHealthDevices !== undefined) profile.syncHealthDevices = syncHealthDevices;
   if (healthPlatform !== undefined) profile.healthPlatform = healthPlatform;
+  if (authProvider !== undefined) profile.authProvider = authProvider;
+  if (email !== undefined) profile.email = email;
 
   console.log(`[Fallback] Profile updated in-memory:`, profile);
   res.json(profile);

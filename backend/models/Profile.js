@@ -20,6 +20,15 @@ const ProfileSchema = new mongoose.Schema({
     enum: ['ios', 'android', 'none'],
     default: 'none'
   },
+  authProvider: {
+    type: String,
+    enum: ['apple', 'google', 'guest'],
+    default: 'guest'
+  },
+  email: {
+    type: String,
+    trim: true
+  },
   createdAt: {
     type: Date,
     default: Date.now
