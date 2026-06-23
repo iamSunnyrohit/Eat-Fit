@@ -16,8 +16,8 @@ app.use('/api/profiles', profileRoutes);
 
 // Base route for server checking
 app.get('/', (req, res) => {
-  res.json({ 
-    message: 'Eat & Fit Backend API is running successfully!', 
+  res.json({
+    message: 'Eat & Fit Backend API is running successfully!',
     databaseConnected: mongoose.connection.readyState === 1
   });
 });
@@ -29,16 +29,16 @@ console.log('Connecting to MongoDB...');
 mongoose.connect(mongoURI, {
   serverSelectionTimeoutMS: 3000 // Don't block server startup if DB is down
 })
-.then(() => {
-  console.log('MongoDB successfully connected.');
-})
-.catch((err) => {
-  console.warn('\n======================================================');
-  console.warn('WARNING: Failed to connect to MongoDB.');
-  console.warn('Reason:', err.message);
-  console.warn('The API server will continue running using an IN-MEMORY fallback database.');
-  console.warn('======================================================\n');
-});
+  .then(() => {
+    console.log('MongoDB successfully connected.');
+  })
+  .catch((err) => {
+    console.warn('\n======================================================');
+    console.warn('WARNING: Failed to connect to MongoDB.');
+    console.warn('Reason:', err.message);
+    console.warn('The API server will continue running using an IN-MEMORY fallback database.');
+    console.warn('======================================================\n');
+  });
 
 // Start Server
 app.listen(PORT, () => {
