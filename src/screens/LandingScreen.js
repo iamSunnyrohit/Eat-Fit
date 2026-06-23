@@ -228,7 +228,7 @@ const styles = StyleSheet.create({
   },
   header: {
     marginTop: 20,
-    marginBottom: 30,
+    marginBottom: 45,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -254,7 +254,7 @@ const styles = StyleSheet.create({
   },
   heroSection: {
     alignItems: 'center',
-    marginBottom: 32,
+    marginBottom: 48,
     width: '100%',
   },
   tagline: {
@@ -294,7 +294,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   section: {
-    marginBottom: 28,
+    marginBottom: 44,
     width: '100%',
   },
   sectionHeader: {
@@ -476,7 +476,7 @@ const styles = StyleSheet.create({
     padding: 20,
     borderWidth: 1,
     borderColor: 'rgba(86, 228, 114, 0.2)',
-    marginBottom: 28,
+    marginBottom: 44,
     width: '100%',
   },
   proLabel: {
