@@ -1,26 +1,42 @@
-import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  ScrollView,
+import React, { useState, useEffect } from 'react';
+import { 
+  View, 
+  Text, 
+  StyleSheet, 
+  TouchableOpacity, 
+  ScrollView, 
   ActivityIndicator,
-  Modal
+  Modal,
+  Alert,
+  Platform
 } from 'react-native';
+import * as AppleAuthentication from 'expo-apple-authentication';
+import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
 
 const LandingScreen = ({ navigation }) => {
   const [authenticating, setAuthenticating] = useState(false);
   const [providerName, setProviderName] = useState('');
 
+  // Configure Google Sign-In on mount
+  useEffect(() => {
+    try {
+      GoogleSignin.configure({
+        // Configuration options can be set here when API keys/Client IDs are ready
+        // webClientId: 'YOUR_WEB_CLIENT_ID.apps.googleusercontent.com', 
+      });
+    } catch (e) {
+      console.warn('GoogleSignin configure warning:', e.message);
+    }
+  }, []);
+
+  // Standard fallback mock login for testing environments (Simulator / Expo Go)
   const triggerMockAuth = (provider) => {
     setProviderName(provider);
     setAuthenticating(true);
 
-    // Simulate standard OAuth loading delay (1.2 seconds)
     setTimeout(() => {
       setAuthenticating(false);
-
+      
       let initialNickname = '';
       let initialEmail = '';
       if (provider === 'Apple') {
@@ -39,6 +55,95 @@ const LandingScreen = ({ navigation }) => {
     }, 1200);
   };
 
+  // Google Sign-In logic
+  const handleGoogleAuth = async () => {
+    try {
+      setProviderName('Google');
+      setAuthenticating(true);
+
+      await GoogleSignin.hasPlayServices();
+      const userInfo = await GoogleSignin.signIn();
+      setAuthenticating(false);
+
+      const user = userInfo.data?.user || userInfo.user;
+      const nickname = user?.name || 'Google User';
+      const email = user?.email || 'user@gmail.com';
+
+      navigation.navigate('HomeSetup', {
+        authProvider: 'google',
+        initialNickname: nickname,
+        initialEmail: email
+      });
+    } catch (error) {
+      setAuthenticating(false);
+      console.error('Google Sign-In error details:', error);
+
+      if (error.code === statusCodes.SIGN_IN_CANCELLED) {
+        Alert.alert('Cancelled', 'Google Sign-In was cancelled.');
+      } else if (error.code === statusCodes.IN_PROGRESS) {
+        Alert.alert('Status', 'Sign-in is already in progress.');
+      } else {
+        // Dev fallback message
+        Alert.alert(
+          'Google Auth Notice',
+          `Native Google Authentication requires client configurations & custom dev builds.\n\nProceeding with mock authentication for development testing.`,
+          [{ text: 'Continue Test', onPress: () => triggerMockAuth('Google') }]
+        );
+      }
+    }
+  };
+
+  // Apple Authentication logic
+  const handleAppleAuth = async () => {
+    try {
+      setProviderName('Apple');
+      setAuthenticating(true);
+
+      const isAvailable = await AppleAuthentication.isAvailableAsync();
+      if (!isAvailable) {
+        setAuthenticating(false);
+        Alert.alert(
+          'Apple Auth Notice',
+          'Apple Authentication is not supported on this platform/device. Proceeding with mock authentication for development testing.',
+          [{ text: 'Continue Test', onPress: () => triggerMockAuth('Apple') }]
+        );
+        return;
+      }
+
+      const credential = await AppleAuthentication.signInAsync({
+        requestedScopes: [
+          AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
+          AppleAuthentication.AppleAuthenticationScope.EMAIL,
+        ],
+      });
+      setAuthenticating(false);
+
+      const nickname = credential.fullName?.givenName 
+        ? `${credential.fullName.givenName} ${credential.fullName.familyName || ''}`.trim()
+        : 'Apple User';
+      const email = credential.email || 'user@icloud.com';
+
+      navigation.navigate('HomeSetup', {
+        authProvider: 'apple',
+        initialNickname: nickname,
+        initialEmail: email
+      });
+    } catch (error) {
+      setAuthenticating(false);
+      console.error('Apple Verification error details:', error);
+
+      if (error.code === 'ERR_CANCELED') {
+        Alert.alert('Cancelled', 'Apple Verification was cancelled.');
+      } else {
+        Alert.alert(
+          'Apple Auth Notice',
+          `Native Apple Authentication failed.\n\nProceeding with mock authentication for development testing.`,
+          [{ text: 'Continue Test', onPress: () => triggerMockAuth('Apple') }]
+        );
+      }
+    }
+  };
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
       {/* Auth Modal Loading Overlay */}
@@ -47,7 +152,7 @@ const LandingScreen = ({ navigation }) => {
           <View style={styles.modalCard}>
             <ActivityIndicator size="large" color="#34c759" />
             <Text style={styles.modalText}>Connecting to {providerName}...</Text>
-            <Text style={styles.modalSubText}>Securing handshake tokens</Text>
+            <Text style={styles.modalSubText}>Securing verification handshake</Text>
           </View>
         </View>
       </Modal>
@@ -64,7 +169,7 @@ const LandingScreen = ({ navigation }) => {
       {/* Core Use Cases Definition */}
       <View style={styles.useCaseContainer}>
         <Text style={styles.sectionHeader}>Why Eat and Fit?</Text>
-
+        
         <View style={styles.useCaseCard}>
           <Text style={styles.useCaseEmoji}>🔄</Text>
           <View style={styles.useCaseTextContent}>
@@ -112,19 +217,18 @@ const LandingScreen = ({ navigation }) => {
         <Text style={styles.authTitle}>Login / Onboard Identity</Text>
 
         {/* Apple Authentication */}
-        <TouchableOpacity
+        <TouchableOpacity 
           style={styles.appleButton}
-          onPress={() => triggerMockAuth('Apple')}
+          onPress={handleAppleAuth}
         >
           <Text style={styles.appleButtonText}> Sign in with Apple</Text>
         </TouchableOpacity>
 
         {/* Google Authentication */}
-        <TouchableOpacity
+        <TouchableOpacity 
           style={styles.googleButton}
-          onPress={() => triggerMockAuth('Google')}
+          onPress={handleGoogleAuth}
         >
-          {/* Unicode symbol for simple G outline */}
           <Text style={styles.googleButtonText}>👤 Sign in with Google</Text>
         </TouchableOpacity>
       </View>
@@ -302,7 +406,6 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: 'bold',
   },
-
 });
 
 export default LandingScreen;
