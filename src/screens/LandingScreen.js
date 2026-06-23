@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { 
-  View, 
-  Text, 
-  StyleSheet, 
-  TouchableOpacity, 
-  ScrollView, 
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
   ActivityIndicator,
   Modal
 } from 'react-native';
@@ -20,7 +20,7 @@ const LandingScreen = ({ navigation }) => {
     // Simulate standard OAuth loading delay (1.2 seconds)
     setTimeout(() => {
       setAuthenticating(false);
-      
+
       let initialNickname = '';
       let initialEmail = '';
       if (provider === 'Apple') {
@@ -64,7 +64,7 @@ const LandingScreen = ({ navigation }) => {
       {/* Core Use Cases Definition */}
       <View style={styles.useCaseContainer}>
         <Text style={styles.sectionHeader}>Why Eat and Fit?</Text>
-        
+
         <View style={styles.useCaseCard}>
           <Text style={styles.useCaseEmoji}>🔄</Text>
           <View style={styles.useCaseTextContent}>
@@ -112,7 +112,7 @@ const LandingScreen = ({ navigation }) => {
         <Text style={styles.authTitle}>Login / Onboard Identity</Text>
 
         {/* Apple Authentication */}
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.appleButton}
           onPress={() => triggerMockAuth('Apple')}
         >
@@ -120,20 +120,12 @@ const LandingScreen = ({ navigation }) => {
         </TouchableOpacity>
 
         {/* Google Authentication */}
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.googleButton}
           onPress={() => triggerMockAuth('Google')}
         >
           {/* Unicode symbol for simple G outline */}
           <Text style={styles.googleButtonText}>👤 Sign in with Google</Text>
-        </TouchableOpacity>
-
-        {/* Continue as Guest */}
-        <TouchableOpacity 
-          style={styles.guestButton}
-          onPress={() => navigation.navigate('HomeSetup', { authProvider: 'guest', initialNickname: '', initialEmail: '' })}
-        >
-          <Text style={styles.guestButtonText}>Continue as Guest 🚀</Text>
         </TouchableOpacity>
       </View>
     </ScrollView>
@@ -310,17 +302,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: 'bold',
   },
-  guestButton: {
-    width: '100%',
-    paddingVertical: 8,
-    alignItems: 'center',
-  },
-  guestButtonText: {
-    color: '#4a90e2',
-    fontSize: 14,
-    fontWeight: '600',
-    textDecorationLine: 'underline',
-  },
+
 });
 
 export default LandingScreen;
