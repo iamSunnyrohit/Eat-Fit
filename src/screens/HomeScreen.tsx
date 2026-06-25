@@ -145,7 +145,13 @@ const HomeScreen = ({ route, navigation }: { route: any; navigation: any }) => {
           />
         );
       case 'mealplan':
-        return <MealPlanScreen />;
+        return (
+          <MealPlanScreen
+            consumedCalories={consumedCalories}
+            dailyCalorieTarget={currentCalorieTarget}
+            setConsumedCalories={setConsumedCalories}
+          />
+        );
       case 'exercise':
         return <ExerciseScreen />;
       case 'profile':
@@ -206,7 +212,7 @@ const HomeScreen = ({ route, navigation }: { route: any; navigation: any }) => {
               style={styles.tabBarIcon}
               resizeMode="contain"
             />
-            <Text style={[styles.tabBarLabel, activeTab === 'mealplan' ? styles.tabBarLabelActive : styles.tabBarLabelInactive]}>Meals</Text>
+            <Text style={[styles.tabBarLabel, activeTab === 'mealplan' ? styles.tabBarLabelActive : styles.tabBarLabelInactive]}>Nutrition</Text>
           </Animated.View>
         </TouchableOpacity>
 
