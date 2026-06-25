@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { useTheme } from '../context/ThemeContext';
 
 interface DashboardScreenProps {
   nickname: string;
@@ -22,6 +23,16 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({
   onEditProfilePress,
   onEnableSyncPress,
 }) => {
+  const { isDarkMode } = useTheme();
+  const theme = {
+    bg: isDarkMode ? '#131315' : '#F8F9FA',
+    card: isDarkMode ? '#1C1C1E' : '#FFFFFF',
+    text: isDarkMode ? '#FFFFFF' : '#111827',
+    subText: isDarkMode ? '#9CA3AF' : '#6B7280',
+    border: isDarkMode ? '#2A2A2C' : '#E5E7EB',
+    inputBg: isDarkMode ? '#2A2A2C' : '#FFFFFF',
+  };
+
   const totalTarget = dailyCalorieTarget + (syncHealthDevices ? activeCalories : 0);
   
   const getCaloriePercentage = () => {
@@ -30,15 +41,16 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({
   };
 
   const pct = getCaloriePercentage();
+  const ringTrackBg = isDarkMode ? '#2C2C2E' : '#E5E7EB';
   const dynamicBorders = {
-    borderTopColor: pct >= 25 ? '#24C76D' : '#E5E7EB',
-    borderRightColor: pct >= 50 ? '#24C76D' : '#E5E7EB',
-    borderBottomColor: pct >= 75 ? '#24C76D' : '#E5E7EB',
-    borderLeftColor: pct >= 95 ? '#24C76D' : '#E5E7EB',
+    borderTopColor: pct >= 25 ? '#24C76D' : ringTrackBg,
+    borderRightColor: pct >= 50 ? '#24C76D' : ringTrackBg,
+    borderBottomColor: pct >= 75 ? '#24C76D' : ringTrackBg,
+    borderLeftColor: pct >= 95 ? '#24C76D' : ringTrackBg,
   };
 
   return (
-    <View style={styles.tabContentContainer}>
+    <View style={[styles.tabContentContainer, { backgroundColor: theme.bg }]}>
       {/* Top Bar matching screenshot */}
       <View style={styles.topBar}>
         <Text style={styles.appName}>Eat & Fit</Text>
@@ -53,28 +65,28 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({
       {/* Welcome Title */}
       <View style={styles.welcomeSection}>
         <Text style={styles.progressSubtitle}>TODAY'S PROGRESS</Text>
-        <Text style={styles.welcomeTitle}>Welcome back, {nickname}</Text>
+        <Text style={[styles.welcomeTitle, { color: theme.text }]}>Welcome back, {nickname}</Text>
       </View>
 
       {/* Main Goal Card with Circular Progress Ring */}
-      <View style={styles.mainCard}>
-        <Text style={styles.dailyGoalLabel}>Daily Goal</Text>
+      <View style={[styles.mainCard, { backgroundColor: theme.card }]}>
+        <Text style={[styles.dailyGoalLabel, { color: theme.subText }]}>Daily Goal</Text>
         <Text style={styles.dailyGoalValue}>
           <Text style={styles.greenText}>{consumedCalories.toLocaleString()}</Text>
-          <Text style={styles.greyText}> / {dailyCalorieTarget.toLocaleString()} kcal</Text>
+          <Text style={[styles.greyText, { color: theme.text }]}> / {dailyCalorieTarget.toLocaleString()} kcal</Text>
         </Text>
-        <View style={styles.leftCaloriesBadge}>
+        <View style={[styles.leftCaloriesBadge, { backgroundColor: isDarkMode ? '#2C2C2E' : '#F3F4F6' }]}>
           <View style={styles.greenDot} />
-          <Text style={styles.leftCaloriesText}>
+          <Text style={[styles.leftCaloriesText, { color: theme.text }]}>
             {Math.max(dailyCalorieTarget - consumedCalories + (syncHealthDevices ? activeCalories : 0), 0).toLocaleString()} kcal left
           </Text>
         </View>
 
         {/* Circular Progress Ring utilizing quadrants border color logic */}
-        <View style={styles.ringOuter}>
+        <View style={[styles.ringOuter, { backgroundColor: isDarkMode ? '#2C2C2E' : '#F3F4F6' }]}>
           <View style={[styles.ringQuadrantBorder, dynamicBorders]}>
-            <View style={styles.ringInner}>
-              <Text style={styles.ringPercentage}>{Math.round(pct)}%</Text>
+            <View style={[styles.ringInner, { backgroundColor: theme.card }]}>
+              <Text style={[styles.ringPercentage, { color: theme.text }]}>{Math.round(pct)}%</Text>
               <Text style={styles.ringSubLabel}>Consumed</Text>
             </View>
           </View>
@@ -84,48 +96,48 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({
       {/* Secondary Metrics sub-cards */}
       <View style={styles.metricsRow}>
         {/* Active Calories Card */}
-        <View style={styles.metricCard}>
+        <View style={[styles.metricCard, { backgroundColor: theme.card }]}>
           <View style={styles.metricCardHeader}>
-            <View style={[styles.iconContainer, { backgroundColor: '#E8FDF0' }]}>
+            <View style={[styles.iconContainer, { backgroundColor: isDarkMode ? '#2C2C2E' : '#E8FDF0' }]}>
               <Text style={styles.metricEmoji}>🏋️‍♂️</Text>
             </View>
             <Text style={styles.metricChangeText}>+12%</Text>
           </View>
-          <Text style={styles.metricCardLabel}>Active Calories</Text>
-          <Text style={styles.metricCardValue}>
+          <Text style={[styles.metricCardLabel, { color: theme.subText }]}>Active Calories</Text>
+          <Text style={[styles.metricCardValue, { color: theme.text }]}>
             {activeCalories.toLocaleString()}{' '}
             <Text style={styles.metricUnitText}>kcal</Text>
           </Text>
-          <View style={styles.progressBarTrack}>
+          <View style={[styles.progressBarTrack, { backgroundColor: isDarkMode ? '#2C2C2E' : '#F3F4F6' }]}>
             <View style={[styles.progressBarFillGreen, { width: `${Math.min((activeCalories / 1000) * 100, 100)}%` }]} />
           </View>
         </View>
 
         {/* Workout Duration Card */}
-        <View style={styles.metricCard}>
+        <View style={[styles.metricCard, { backgroundColor: theme.card }]}>
           <View style={styles.metricCardHeader}>
-            <View style={[styles.iconContainer, { backgroundColor: '#EEF2FF' }]}>
+            <View style={[styles.iconContainer, { backgroundColor: isDarkMode ? '#2C2C2E' : '#EEF2FF' }]}>
               <Text style={styles.metricEmoji}>⏱️</Text>
             </View>
             <Text style={[styles.metricChangeText, { color: '#9CA3AF' }]}>Daily</Text>
           </View>
-          <Text style={styles.metricCardLabel}>Workout Duration</Text>
-          <Text style={styles.metricCardValue}>
+          <Text style={[styles.metricCardLabel, { color: theme.subText }]}>Workout Duration</Text>
+          <Text style={[styles.metricCardValue, { color: theme.text }]}>
             {Math.round(activeCalories / 15 + 20)}{' '}
             <Text style={styles.metricUnitText}>min</Text>
           </Text>
-          <View style={styles.progressBarTrack}>
+          <View style={[styles.progressBarTrack, { backgroundColor: isDarkMode ? '#2C2C2E' : '#F3F4F6' }]}>
             <View style={[styles.progressBarFillBlue, { width: '65%' }]} />
           </View>
         </View>
       </View>
 
       {/* Today's Nutrition Section */}
-      <View style={styles.nutritionCard}>
+      <View style={[styles.nutritionCard, { backgroundColor: theme.card }]}>
         <View style={styles.nutritionHeader}>
           <View style={styles.nutritionTitleGroup}>
             <Text style={styles.nutritionForkKnife}>🥗</Text>
-            <Text style={styles.nutritionTitle}>Today's Nutrition</Text>
+            <Text style={[styles.nutritionTitle, { color: theme.text }]}>Today's Nutrition</Text>
           </View>
           <TouchableOpacity onPress={onEditProfilePress}>
             <Text style={styles.viewDetailsText}>View Details</Text>
@@ -136,31 +148,31 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({
         <View style={styles.nutritionBarsContainer}>
           {/* Protein bar */}
           <View style={styles.nutritionBarColumn}>
-            <View style={styles.barOuterTrack}>
+            <View style={[styles.barOuterTrack, { backgroundColor: isDarkMode ? '#2C2C2E' : '#F3F4F6' }]}>
               <View style={[styles.barFillGreen, { height: '55%' }]} />
             </View>
             <Text style={styles.macroLabel}>PROTEIN</Text>
-            <Text style={styles.macroValue}>142g</Text>
+            <Text style={[styles.macroValue, { color: theme.text }]}>142g</Text>
             <View style={styles.macroIndicatorLineGreen} />
           </View>
 
           {/* Carbs bar */}
           <View style={styles.nutritionBarColumn}>
-            <View style={styles.barOuterTrack}>
+            <View style={[styles.barOuterTrack, { backgroundColor: isDarkMode ? '#2C2C2E' : '#F3F4F6' }]}>
               <View style={[styles.barFillBlue, { height: '80%' }]} />
             </View>
             <Text style={styles.macroLabel}>CARBS</Text>
-            <Text style={styles.macroValue}>265g</Text>
+            <Text style={[styles.macroValue, { color: theme.text }]}>265g</Text>
             <View style={styles.macroIndicatorLineBlue} />
           </View>
 
           {/* Fat bar */}
           <View style={styles.nutritionBarColumn}>
-            <View style={styles.barOuterTrack}>
+            <View style={[styles.barOuterTrack, { backgroundColor: isDarkMode ? '#2C2C2E' : '#F3F4F6' }]}>
               <View style={[styles.barFillRed, { height: '40%' }]} />
             </View>
             <Text style={styles.macroLabel}>FAT</Text>
-            <Text style={styles.macroValue}>58g</Text>
+            <Text style={[styles.macroValue, { color: theme.text }]}>58g</Text>
             <View style={styles.macroIndicatorLineRed} />
           </View>
         </View>
@@ -176,31 +188,31 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({
         </View>
 
         {/* Morning Run */}
-        <View style={styles.activityRow}>
-          <View style={[styles.activityIconBadge, { backgroundColor: '#E8FDF0' }]}>
+        <View style={[styles.activityRow, { backgroundColor: theme.card }]}>
+          <View style={[styles.activityIconBadge, { backgroundColor: isDarkMode ? '#2C2C2E' : '#E8FDF0' }]}>
             <Text style={styles.activityBadgeText}>🏃‍♂️</Text>
           </View>
           <View style={styles.activityMeta}>
-            <Text style={styles.activityName}>Morning Run</Text>
+            <Text style={[styles.activityName, { color: theme.text }]}>Morning Run</Text>
             <Text style={styles.activityTime}>Today, 7:15 AM</Text>
           </View>
           <View style={styles.activityMetricsRight}>
-            <Text style={styles.activityCalBurn}>420 kcal</Text>
+            <Text style={[styles.activityCalBurn, { color: theme.text }]}>420 kcal</Text>
             <Text style={[styles.activitySubText, { color: '#24C76D' }]}>5.2 km</Text>
           </View>
         </View>
 
         {/* Healthy Bowl */}
-        <View style={styles.activityRow}>
-          <View style={[styles.activityIconBadge, { backgroundColor: '#EEF2FF' }]}>
+        <View style={[styles.activityRow, { backgroundColor: theme.card }]}>
+          <View style={[styles.activityIconBadge, { backgroundColor: isDarkMode ? '#2C2C2E' : '#EEF2FF' }]}>
             <Text style={styles.activityBadgeText}>🍔</Text>
           </View>
           <View style={styles.activityMeta}>
-            <Text style={styles.activityName}>Healthy Bowl</Text>
+            <Text style={[styles.activityName, { color: theme.text }]}>Healthy Bowl</Text>
             <Text style={styles.activityTime}>Today, 1:30 PM</Text>
           </View>
           <View style={styles.activityMetricsRight}>
-            <Text style={styles.activityCalBurn}>640 kcal</Text>
+            <Text style={[styles.activityCalBurn, { color: theme.text }]}>640 kcal</Text>
             <Text style={[styles.activitySubText, { color: '#3B82F6' }]}>High Protein</Text>
           </View>
         </View>

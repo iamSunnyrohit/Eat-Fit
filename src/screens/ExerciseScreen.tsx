@@ -1,7 +1,18 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, TextInput, ScrollView } from 'react-native';
+import { useTheme } from '../context/ThemeContext';
 
 const ExerciseScreen: React.FC = () => {
+  const { isDarkMode } = useTheme();
+  const theme = {
+    bg: isDarkMode ? '#131315' : '#F8F9FA',
+    card: isDarkMode ? '#1C1C1E' : '#FFFFFF',
+    text: isDarkMode ? '#FFFFFF' : '#111827',
+    subText: isDarkMode ? '#9CA3AF' : '#6B7280',
+    border: isDarkMode ? '#2A2A2C' : '#E5E7EB',
+    inputBg: isDarkMode ? '#2A2A2C' : '#FFFFFF',
+  };
+
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState<'all' | 'yoga' | 'pilates' | 'strength'>('all');
 
@@ -43,7 +54,7 @@ const ExerciseScreen: React.FC = () => {
   });
 
   return (
-    <View style={styles.tabContentContainer}>
+    <View style={[styles.tabContentContainer, { backgroundColor: theme.bg }]}>
       {/* Top Bar matching design */}
       <View style={styles.topBar}>
         <Text style={styles.appName}>Eat & Fit</Text>
@@ -56,12 +67,12 @@ const ExerciseScreen: React.FC = () => {
       </View>
 
       {/* Search Input Bar */}
-      <View style={styles.searchContainer}>
+      <View style={[styles.searchContainer, { backgroundColor: theme.inputBg, borderColor: theme.border, borderWidth: isDarkMode ? 1 : 0 }]}>
         <Text style={styles.searchIcon}>🔍</Text>
         <TextInput
-          style={styles.searchInput}
+          style={[styles.searchInput, { color: theme.text }]}
           placeholder="Search exercises, muscle groups..."
-          placeholderTextColor="#9CA3AF"
+          placeholderTextColor={isDarkMode ? '#9CA3AF' : '#6B7280'}
           value={searchQuery}
           onChangeText={setSearchQuery}
         />
@@ -69,62 +80,62 @@ const ExerciseScreen: React.FC = () => {
 
       {/* Performance Stats Cards Grid */}
       <View style={styles.statsGrid}>
-        <View style={styles.statCard}>
-          <Text style={styles.statLabel}>TOTAL WORKOUTS</Text>
+        <View style={[styles.statCard, { backgroundColor: theme.card }]}>
+          <Text style={[styles.statLabel, { color: theme.subText }]}>TOTAL WORKOUTS</Text>
           <Text style={styles.statValue}>
             <Text style={styles.greenText}>24</Text>
-            <Text style={styles.greyText}> this month</Text>
+            <Text style={[styles.greyText, { color: theme.text }]}> this month</Text>
           </Text>
         </View>
 
-        <View style={styles.statCard}>
-          <Text style={styles.statLabel}>ACTIVE MINUTES</Text>
+        <View style={[styles.statCard, { backgroundColor: theme.card }]}>
+          <Text style={[styles.statLabel, { color: theme.subText }]}>ACTIVE MINUTES</Text>
           <Text style={styles.statValue}>
             <Text style={styles.greenText}>840</Text>
-            <Text style={styles.greyText}> min</Text>
+            <Text style={[styles.greyText, { color: theme.text }]}> min</Text>
           </Text>
         </View>
       </View>
 
       {/* Weekly Goal Card */}
-      <View style={styles.goalCard}>
+      <View style={[styles.goalCard, { backgroundColor: theme.card }]}>
         <View style={styles.goalHeaderRow}>
           <Text style={styles.goalTitle}>WEEKLY GOAL</Text>
           <Text style={styles.goalPercentage}>80%</Text>
         </View>
-        <View style={styles.goalTrack}>
+        <View style={[styles.goalTrack, { backgroundColor: isDarkMode ? '#2C2C2E' : '#F3F4F6' }]}>
           <View style={styles.goalFill} />
         </View>
-        <Text style={styles.goalSubtitle}>4 of 5 workouts completed</Text>
+        <Text style={[styles.goalSubtitle, { color: theme.subText }]}>4 of 5 workouts completed</Text>
       </View>
 
       {/* Explore Categories row */}
       <View style={styles.categoriesSection}>
-        <Text style={styles.sectionTitle}>Explore Categories</Text>
+        <Text style={[styles.sectionTitle, { color: theme.text }]}>Explore Categories</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.categoryList}>
           <TouchableOpacity 
-            style={[styles.categoryPill, activeCategory === 'all' && styles.categoryPillActive]}
+            style={[styles.categoryPill, { backgroundColor: activeCategory === 'all' ? '#24C76D' : theme.card, borderColor: activeCategory === 'all' ? '#24C76D' : theme.border }]}
             onPress={() => setActiveCategory('all')}
           >
-            <Text style={[styles.categoryText, activeCategory === 'all' && styles.categoryTextActive]}>All</Text>
+            <Text style={[styles.categoryText, { color: activeCategory === 'all' ? '#FFFFFF' : theme.subText }]}>All</Text>
           </TouchableOpacity>
           <TouchableOpacity 
-            style={[styles.categoryPill, activeCategory === 'yoga' && styles.categoryPillActive]}
+            style={[styles.categoryPill, { backgroundColor: activeCategory === 'yoga' ? '#24C76D' : theme.card, borderColor: activeCategory === 'yoga' ? '#24C76D' : theme.border }]}
             onPress={() => setActiveCategory('yoga')}
           >
-            <Text style={[styles.categoryText, activeCategory === 'yoga' && styles.categoryTextActive]}>Yoga</Text>
+            <Text style={[styles.categoryText, { color: activeCategory === 'yoga' ? '#FFFFFF' : theme.subText }]}>Yoga</Text>
           </TouchableOpacity>
           <TouchableOpacity 
-            style={[styles.categoryPill, activeCategory === 'pilates' && styles.categoryPillActive]}
+            style={[styles.categoryPill, { backgroundColor: activeCategory === 'pilates' ? '#24C76D' : theme.card, borderColor: activeCategory === 'pilates' ? '#24C76D' : theme.border }]}
             onPress={() => setActiveCategory('pilates')}
           >
-            <Text style={[styles.categoryText, activeCategory === 'pilates' && styles.categoryTextActive]}>Pilates</Text>
+            <Text style={[styles.categoryText, { color: activeCategory === 'pilates' ? '#FFFFFF' : theme.subText }]}>Pilates</Text>
           </TouchableOpacity>
           <TouchableOpacity 
-            style={[styles.categoryPill, activeCategory === 'strength' && styles.categoryPillActive]}
+            style={[styles.categoryPill, { backgroundColor: activeCategory === 'strength' ? '#24C76D' : theme.card, borderColor: activeCategory === 'strength' ? '#24C76D' : theme.border }]}
             onPress={() => setActiveCategory('strength')}
           >
-            <Text style={[styles.categoryText, activeCategory === 'strength' && styles.categoryTextActive]}>Strength Training</Text>
+            <Text style={[styles.categoryText, { color: activeCategory === 'strength' ? '#FFFFFF' : theme.subText }]}>Strength Training</Text>
           </TouchableOpacity>
         </ScrollView>
       </View>
@@ -132,25 +143,25 @@ const ExerciseScreen: React.FC = () => {
       {/* Recommended for You list */}
       <View style={styles.recommendedSection}>
         <View style={styles.recommendedHeaderRow}>
-          <Text style={styles.sectionTitle}>Recommended for You</Text>
+          <Text style={[styles.sectionTitle, { color: theme.text }]}>Recommended for You</Text>
           <TouchableOpacity>
             <Text style={styles.seeAllText}>See all</Text>
           </TouchableOpacity>
         </View>
 
         {filteredWorkouts.map((workout) => (
-          <View key={workout.id} style={styles.workoutVideoCard}>
+          <View key={workout.id} style={[styles.workoutVideoCard, { backgroundColor: theme.card }]}>
             <View style={styles.videoThumbnailWrapper}>
               <Image source={{ uri: workout.image }} style={styles.videoThumbnail} resizeMode="cover" />
-              <View style={styles.difficultyBadge}>
-                <Text style={styles.difficultyText}>⚡ {workout.tag}</Text>
+              <View style={[styles.difficultyBadge, { backgroundColor: isDarkMode ? 'rgba(0, 0, 0, 0.75)' : 'rgba(255, 255, 255, 0.9)' }]}>
+                <Text style={[styles.difficultyText, { color: theme.text }]}>⚡ {workout.tag}</Text>
               </View>
             </View>
             <View style={styles.workoutMeta}>
-              <Text style={styles.workoutTitle}>{workout.title}</Text>
+              <Text style={[styles.workoutTitle, { color: theme.text }]}>{workout.title}</Text>
               <View style={styles.workoutDetailsRow}>
-                <Text style={styles.detailText}>⏱️ {workout.duration}</Text>
-                <Text style={[styles.detailText, { marginLeft: 16 }]}>🔥 {workout.calories}</Text>
+                <Text style={[styles.detailText, { color: theme.subText }]}>⏱️ {workout.duration}</Text>
+                <Text style={[styles.detailText, { color: theme.subText, marginLeft: 16 }]}>🔥 {workout.calories}</Text>
               </View>
             </View>
           </View>
@@ -159,26 +170,26 @@ const ExerciseScreen: React.FC = () => {
 
       {/* Exercise Catalog directory */}
       <View style={styles.catalogSection}>
-        <Text style={styles.sectionTitle}>Exercise Catalog</Text>
+        <Text style={[styles.sectionTitle, { color: theme.text }]}>Exercise Catalog</Text>
 
-        <TouchableOpacity style={styles.catalogItemCard}>
-          <View style={styles.catalogIconBadge}>
+        <TouchableOpacity style={[styles.catalogItemCard, { backgroundColor: theme.card }]}>
+          <View style={[styles.catalogIconBadge, { backgroundColor: isDarkMode ? '#2C2C2E' : '#EEF2FF' }]}>
             <Text style={styles.catalogEmoji}>🏋️‍♂️</Text>
           </View>
           <View style={styles.catalogMeta}>
-            <Text style={styles.catalogTitle}>Full Body Weightlifting</Text>
-            <Text style={styles.catalogSubtitle}>120 exercises</Text>
+            <Text style={[styles.catalogTitle, { color: theme.text }]}>Full Body Weightlifting</Text>
+            <Text style={[styles.catalogSubtitle, { color: theme.subText }]}>120 exercises</Text>
           </View>
           <Text style={styles.catalogArrow}>＞</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.catalogItemCard}>
-          <View style={[styles.catalogIconBadge, { backgroundColor: '#EBFDF2' }]}>
+        <TouchableOpacity style={[styles.catalogItemCard, { backgroundColor: theme.card }]}>
+          <View style={[styles.catalogIconBadge, { backgroundColor: isDarkMode ? '#2C2C2E' : '#EBFDF2' }]}>
             <Text style={styles.catalogEmoji}>🧘‍♂️</Text>
           </View>
           <View style={styles.catalogMeta}>
-            <Text style={styles.catalogTitle}>Mobility & Stretching</Text>
-            <Text style={styles.catalogSubtitle}>45 exercises</Text>
+            <Text style={[styles.catalogTitle, { color: theme.text }]}>Mobility & Stretching</Text>
+            <Text style={[styles.catalogSubtitle, { color: theme.subText }]}>45 exercises</Text>
           </View>
           <Text style={styles.catalogArrow}>＞</Text>
         </TouchableOpacity>

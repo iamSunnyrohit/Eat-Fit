@@ -11,6 +11,7 @@ import {
   NativeModules
 } from 'react-native';
 import * as AppleAuthentication from 'expo-apple-authentication';
+import { useTheme } from '../context/ThemeContext';
 
 let GoogleSignin: any;
 let statusCodes: any;
@@ -42,8 +43,11 @@ if (!GoogleSignin) {
 
 
 const AuthScreen = ({ navigation }: { navigation: any }) => {
+  const { isDarkMode, setIsDarkMode } = useTheme();
   const [authenticating, setAuthenticating] = useState(false);
   const [providerName, setProviderName] = useState('');
+  const [showThemeSelector, setShowThemeSelector] = useState(false);
+  const [tempAuthData, setTempAuthData] = useState<{ authProvider: string; initialNickname: string; initialEmail: string } | null>(null);
 
   // Configure Google Sign-In on mount
   useEffect(() => {
@@ -77,11 +81,12 @@ const AuthScreen = ({ navigation }: { navigation: any }) => {
         initialEmail = 'user@gmail.com';
       }
 
-      navigation.navigate('HomeSetup', {
+      setTempAuthData({
         authProvider: provider.toLowerCase(),
         initialNickname,
         initialEmail
       });
+      setShowThemeSelector(true);
     }, 1200);
   };
 
@@ -103,11 +108,12 @@ const AuthScreen = ({ navigation }: { navigation: any }) => {
       const nickname = user?.name || 'Google User';
       const email = user?.email || 'user@gmail.com';
 
-      navigation.navigate('HomeSetup', {
+      setTempAuthData({
         authProvider: 'google',
         initialNickname: nickname,
         initialEmail: email
       });
+      setShowThemeSelector(true);
     } catch (error: any) {
       setAuthenticating(false);
       console.error('Google Sign-In error details:', error);
@@ -160,11 +166,12 @@ const AuthScreen = ({ navigation }: { navigation: any }) => {
         : 'Apple User';
       const email = credential.email || 'user@icloud.com';
 
-      navigation.navigate('HomeSetup', {
+      setTempAuthData({
         authProvider: 'apple',
         initialNickname: nickname,
         initialEmail: email
       });
+      setShowThemeSelector(true);
     } catch (error: any) {
       setAuthenticating(false);
       console.error('Apple Verification error details:', error);
@@ -190,6 +197,58 @@ const AuthScreen = ({ navigation }: { navigation: any }) => {
             <ActivityIndicator size="large" color="#56e472" />
             <Text style={styles.modalText}>Connecting to {providerName}...</Text>
             <Text style={styles.modalSubText}>Securing verification handshake</Text>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Theme Choice Preference Selection Modal */}
+      <Modal transparent={true} visible={showThemeSelector} animationType="slide">
+        <View style={styles.modalOverlay}>
+          <View style={styles.themeModalCard}>
+            <Text style={styles.themeModalTitle}>App Theme Preference 🎨</Text>
+            <Text style={styles.themeModalDesc}>Choose your visual style. You can also toggle this later in Settings.</Text>
+
+            {/* Option 1: Normal (Light) Theme */}
+            <TouchableOpacity 
+              style={[
+                styles.themeOptionCard, 
+                !isDarkMode && styles.themeOptionCardActive,
+                { backgroundColor: '#FFFFFF', borderColor: !isDarkMode ? '#24C76D' : '#E5E7EB' }
+              ]} 
+              onPress={() => setIsDarkMode(false)}
+            >
+              <View style={styles.themeOptionMeta}>
+                <Text style={[styles.themeOptionNameText, { color: '#111827' }]}>Normal Theme</Text>
+                <Text style={[styles.themeOptionSubText, { color: '#6B7280' }]}>Clean, high-contrast light mode layout</Text>
+              </View>
+              {!isDarkMode && <Text style={styles.themeCheckmark}>✓</Text>}
+            </TouchableOpacity>
+
+            {/* Option 2: Dark Theme */}
+            <TouchableOpacity 
+              style={[
+                styles.themeOptionCard, 
+                isDarkMode && styles.themeOptionCardActive,
+                { backgroundColor: '#1C1C1E', borderColor: isDarkMode ? '#24C76D' : '#3A3A3C' }
+              ]} 
+              onPress={() => setIsDarkMode(true)}
+            >
+              <View style={styles.themeOptionMeta}>
+                <Text style={[styles.themeOptionNameText, { color: '#FFFFFF' }]}>Dark Theme</Text>
+                <Text style={[styles.themeOptionSubText, { color: '#9CA3AF' }]}>Premium, battery-saving dark palette</Text>
+              </View>
+              {isDarkMode && <Text style={styles.themeCheckmark}>✓</Text>}
+            </TouchableOpacity>
+
+            {/* Continue Button */}
+            <TouchableOpacity style={styles.themeContinueBtn} onPress={() => {
+              setShowThemeSelector(false);
+              if (tempAuthData) {
+                navigation.navigate('HomeSetup', tempAuthData);
+              }
+            }}>
+              <Text style={styles.themeContinueBtnText}>Continue</Text>
+            </TouchableOpacity>
           </View>
         </View>
       </Modal>
@@ -315,6 +374,73 @@ const styles = StyleSheet.create({
     color: '#939397',
     fontSize: 14,
     fontWeight: '600',
+  },
+  themeModalCard: {
+    backgroundColor: '#1C1C1E',
+    borderRadius: 24,
+    padding: 24,
+    width: '90%',
+    alignItems: 'center',
+    borderWidth: 1.5,
+    borderColor: '#2A2A2C',
+  },
+  themeModalTitle: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  themeModalDesc: {
+    fontSize: 13,
+    color: '#9CA3AF',
+    lineHeight: 18,
+    textAlign: 'center',
+    marginBottom: 24,
+  },
+  themeOptionCard: {
+    width: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 16,
+    borderRadius: 16,
+    borderWidth: 2,
+    marginBottom: 14,
+  },
+  themeOptionCardActive: {
+    borderWidth: 2,
+  },
+  themeOptionMeta: {
+    flex: 1,
+  },
+  themeOptionNameText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  themeOptionSubText: {
+    fontSize: 12,
+    marginTop: 4,
+  },
+  themeCheckmark: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#24C76D',
+    marginLeft: 10,
+  },
+  themeContinueBtn: {
+    backgroundColor: '#24C76D',
+    width: '100%',
+    paddingVertical: 14,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 10,
+  },
+  themeContinueBtnText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
   },
 });
 

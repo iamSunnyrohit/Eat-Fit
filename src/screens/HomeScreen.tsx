@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Platform, Alert, Image, Animated } from 'react-native';
 import { getTodaySteps, getTodayActiveCalories, requestHealthPermissions } from '../services/HealthService';
+import { useTheme } from '../context/ThemeContext';
 
 // Child Tab Screen Imports
 import DashboardScreen from './DashboardScreen';
@@ -10,6 +11,15 @@ import ExerciseScreen from './ExerciseScreen';
 import ProfileScreen from './ProfileScreen';
 
 const HomeScreen = ({ route, navigation }: { route: any; navigation: any }) => {
+  const { isDarkMode } = useTheme();
+  const theme = {
+    bg: isDarkMode ? '#131315' : '#F8F9FA',
+    card: isDarkMode ? '#1C1C1E' : '#FFFFFF',
+    text: isDarkMode ? '#FFFFFF' : '#111827',
+    subText: isDarkMode ? '#9CA3AF' : '#6B7280',
+    border: isDarkMode ? '#2A2A2C' : '#E5E7EB',
+    inputBg: isDarkMode ? '#2A2A2C' : '#FFFFFF',
+  };
   // Extract profile data passed from Onboarding
   const { nickname = 'Athlete', dailyCalorieTarget = 2000, syncHealthDevices = false } = route.params || {};
 
@@ -172,7 +182,7 @@ const HomeScreen = ({ route, navigation }: { route: any; navigation: any }) => {
   };
 
   return (
-    <View style={styles.mainContainer}>
+    <View style={[styles.mainContainer, { backgroundColor: theme.bg }]}>
       <ScrollView
         style={styles.scrollContainer}
         contentContainerStyle={styles.scrollContent}
@@ -182,7 +192,7 @@ const HomeScreen = ({ route, navigation }: { route: any; navigation: any }) => {
       </ScrollView>
 
       {/* Fixed Custom Bottom Navigation Tab Bar */}
-      <View style={styles.bottomTabBar}>
+      <View style={[styles.bottomTabBar, { backgroundColor: theme.card, borderColor: theme.border }]}>
         <TouchableOpacity style={styles.tabBarButton} onPress={() => handleTabPress('dashboard')}>
           <Animated.View style={[styles.iconWrapper, activeTab === 'dashboard' && styles.iconWrapperActive, { transform: [{ scale: tabScales.dashboard }] }]}>
             <Image

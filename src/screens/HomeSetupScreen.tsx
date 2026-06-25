@@ -12,11 +12,22 @@ import {
   Platform
 } from 'react-native';
 import { requestHealthPermissions } from '../services/HealthService';
+import { useTheme } from '../context/ThemeContext';
 
 // Standard local API URL. For Android emulator, use 10.0.2.2. For iOS/Web, use localhost.
 const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || (Platform.OS === 'android' ? 'http://10.0.2.2:5002' : 'http://localhost:5002');
 
 const HomeSetupScreen = ({ route, navigation }: { route: any; navigation: any }) => {
+  const { isDarkMode } = useTheme();
+  const theme = {
+    bg: isDarkMode ? '#131315' : '#F8F9FA',
+    card: isDarkMode ? '#1C1C1E' : '#FFFFFF',
+    text: isDarkMode ? '#FFFFFF' : '#111827',
+    subText: isDarkMode ? '#9CA3AF' : '#6B7280',
+    border: isDarkMode ? '#2A2A2C' : '#E5E7EB',
+    inputBg: isDarkMode ? '#2A2A2C' : '#FFFFFF',
+  };
+
   const { authProvider = 'guest', initialNickname = '', initialEmail = '' } = route.params || {};
 
   const [nickname, setNickname] = useState(initialNickname);
@@ -117,10 +128,10 @@ const HomeSetupScreen = ({ route, navigation }: { route: any; navigation: any })
   };
 
   return (
-    <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
+    <ScrollView style={{ flex: 1, backgroundColor: theme.bg }} contentContainerStyle={[styles.container, { backgroundColor: theme.bg }]} showsVerticalScrollIndicator={false}>
       <View style={styles.header}>
-        <Text style={styles.title}>Set Up Profile 👤</Text>
-        <Text style={styles.subtitle}>Configure your daily targets & telemetry integration</Text>
+        <Text style={[styles.title, { color: theme.text }]}>Set Up Profile 👤</Text>
+        <Text style={[styles.subtitle, { color: theme.subText }]}>Configure your daily targets & telemetry integration</Text>
       </View>
 
       {/* Authentication Status Badge */}
@@ -135,11 +146,11 @@ const HomeSetupScreen = ({ route, navigation }: { route: any; navigation: any })
       <View style={styles.form}>
         {/* Nickname Input */}
         <View style={styles.inputGroup}>
-          <Text style={styles.label}>Nickname or Name</Text>
+          <Text style={[styles.label, { color: theme.text }]}>Nickname or Name</Text>
           <TextInput
-            style={styles.input}
+            style={[styles.input, { backgroundColor: theme.inputBg, color: theme.text, borderColor: theme.border }]}
             placeholder="e.g. Alex"
-            placeholderTextColor="#6c7281"
+            placeholderTextColor={isDarkMode ? '#9CA3AF' : '#6B7280'}
             value={nickname}
             onChangeText={setNickname}
           />
@@ -147,14 +158,19 @@ const HomeSetupScreen = ({ route, navigation }: { route: any; navigation: any })
 
         {/* Email Input */}
         <View style={styles.inputGroup}>
-          <Text style={styles.label}>Email Address</Text>
+          <Text style={[styles.label, { color: theme.text }]}>Email Address</Text>
           <TextInput
             style={[
               styles.input, 
-              authProvider !== 'guest' && styles.disabledInput
+              authProvider !== 'guest' && styles.disabledInput,
+              { 
+                backgroundColor: theme.inputBg, 
+                color: authProvider !== 'guest' ? theme.subText : theme.text, 
+                borderColor: theme.border 
+              }
             ]}
             placeholder="user@example.com"
-            placeholderTextColor="#6c7281"
+            placeholderTextColor={isDarkMode ? '#9CA3AF' : '#6B7280'}
             keyboardType="email-address"
             autoCapitalize="none"
             editable={authProvider === 'guest'}
@@ -162,17 +178,17 @@ const HomeSetupScreen = ({ route, navigation }: { route: any; navigation: any })
             onChangeText={setEmail}
           />
           {authProvider !== 'guest' && (
-            <Text style={styles.inputHelperText}>Email managed by your auth provider.</Text>
+            <Text style={[styles.inputHelperText, { color: theme.subText }]}>Email managed by your auth provider.</Text>
           )}
         </View>
 
         {/* Caloric Target Input */}
         <View style={styles.inputGroup}>
-          <Text style={styles.label}>Daily Calorie Target (kcal)</Text>
+          <Text style={[styles.label, { color: theme.text }]}>Daily Calorie Target (kcal)</Text>
           <TextInput
-            style={styles.input}
+            style={[styles.input, { backgroundColor: theme.inputBg, color: theme.text, borderColor: theme.border }]}
             placeholder="2000"
-            placeholderTextColor="#6c7281"
+            placeholderTextColor={isDarkMode ? '#9CA3AF' : '#6B7280'}
             keyboardType="number-pad"
             value={calorieTarget}
             onChangeText={setCalorieTarget}
@@ -180,19 +196,19 @@ const HomeSetupScreen = ({ route, navigation }: { route: any; navigation: any })
         </View>
 
         {/* Telemetry Authorization */}
-        <View style={styles.switchGroup}>
+        <View style={[styles.switchGroup, { backgroundColor: theme.card, borderColor: theme.border }]}>
           <View style={styles.switchTextContent}>
-            <Text style={styles.switchTitle}>Native Device Sync</Text>
-            <Text style={styles.switchDesc}>
+            <Text style={[styles.switchTitle, { color: theme.text }]}>Native Device Sync</Text>
+            <Text style={[styles.switchDesc, { color: theme.subText }]}>
               {Platform.OS === 'ios' 
                 ? 'Sync workouts, steps, and active calories with Apple HealthKit' 
                 : 'Sync workouts, steps, and active calories with Google Health Connect'}
             </Text>
           </View>
           <Switch
-            trackColor={{ false: '#2c2e3a', true: '#34c759' }}
-            thumbColor={syncHealthDevices ? '#ffffff' : '#a0a5b5'}
-            ios_backgroundColor="#2c2e3a"
+            trackColor={{ false: isDarkMode ? '#2C2C2E' : '#D1D5DB', true: '#24C76D' }}
+            thumbColor={syncHealthDevices ? '#ffffff' : (isDarkMode ? '#a0a5b5' : '#F3F4F6')}
+            ios_backgroundColor={isDarkMode ? '#2C2C2E' : '#D1D5DB'}
             onValueChange={handleSyncHealthToggle}
             value={syncHealthDevices}
           />

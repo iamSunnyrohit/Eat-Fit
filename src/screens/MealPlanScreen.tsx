@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, TextInput, ActivityIndicator, Alert } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
+import { useTheme } from '../context/ThemeContext';
 
 interface MealPlanScreenProps {
   consumedCalories: number;
@@ -21,6 +22,16 @@ const MealPlanScreen: React.FC<MealPlanScreenProps> = ({
   dailyCalorieTarget,
   setConsumedCalories,
 }) => {
+  const { isDarkMode } = useTheme();
+  const theme = {
+    bg: isDarkMode ? '#131315' : '#F8F9FA',
+    card: isDarkMode ? '#1C1C1E' : '#FFFFFF',
+    text: isDarkMode ? '#FFFFFF' : '#111827',
+    subText: isDarkMode ? '#9CA3AF' : '#6B7280',
+    border: isDarkMode ? '#2A2A2C' : '#E5E7EB',
+    inputBg: isDarkMode ? '#2A2A2C' : '#FFFFFF',
+  };
+
   const [searchQuery, setSearchQuery] = useState('');
   const [scanning, setScanning] = useState(false);
   const [scannedImage, setScannedImage] = useState<string | null>(null);
@@ -146,7 +157,7 @@ const MealPlanScreen: React.FC<MealPlanScreenProps> = ({
   );
 
   return (
-    <View style={styles.tabContentContainer}>
+    <View style={[styles.tabContentContainer, { backgroundColor: theme.bg }]}>
       {/* Top Bar matching design */}
       <View style={styles.topBar}>
         <Text style={styles.appName}>Eat & Fit</Text>
@@ -159,15 +170,15 @@ const MealPlanScreen: React.FC<MealPlanScreenProps> = ({
       </View>
 
       {/* RECIPE IDEAS Search bar */}
-      <View style={styles.recipeIdeasCard}>
+      <View style={[styles.recipeIdeasCard, { backgroundColor: theme.card }]}>
         <Text style={styles.recipeHeader}>RECIPE IDEAS</Text>
-        <Text style={styles.recipeSubtitle}>Find healthy meal inspirations</Text>
-        <View style={styles.searchBar}>
+        <Text style={[styles.recipeSubtitle, { color: theme.text }]}>Find healthy meal inspirations</Text>
+        <View style={[styles.searchBar, { backgroundColor: theme.inputBg, borderColor: theme.border, borderWidth: isDarkMode ? 1 : 0 }]}>
           <Text style={styles.searchIcon}>🔍</Text>
           <TextInput
-            style={styles.searchInput}
+            style={[styles.searchInput, { color: theme.text }]}
             placeholder="Search recipes..."
-            placeholderTextColor="#9CA3AF"
+            placeholderTextColor={isDarkMode ? '#9CA3AF' : '#6B7280'}
             value={searchQuery}
             onChangeText={setSearchQuery}
           />
@@ -175,32 +186,32 @@ const MealPlanScreen: React.FC<MealPlanScreenProps> = ({
       </View>
 
       {/* ENERGY BALANCE card */}
-      <View style={styles.balanceCard}>
+      <View style={[styles.balanceCard, { backgroundColor: theme.card }]}>
         <Text style={styles.balanceHeader}>ENERGY BALANCE</Text>
         <Text style={styles.balanceValue}>
           <Text style={styles.greenText}>{consumedCalories.toLocaleString()}</Text>
-          <Text style={styles.greyText}> / {dailyCalorieTarget.toLocaleString()} kcal</Text>
+          <Text style={[styles.greyText, { color: theme.text }]}> / {dailyCalorieTarget.toLocaleString()} kcal</Text>
         </Text>
-        <View style={styles.balanceBarTrack}>
+        <View style={[styles.balanceBarTrack, { backgroundColor: isDarkMode ? '#2C2C2E' : '#F3F4F6' }]}>
           <View style={[styles.balanceBarFill, { width: `${pct}%` }]} />
         </View>
         <View style={styles.balanceFooter}>
-          <Text style={styles.footerText}>{Math.round(pct)}% of daily goal</Text>
-          <Text style={styles.footerText}>{remainingCalories.toLocaleString()} kcal remaining</Text>
+          <Text style={[styles.footerText, { color: theme.subText }]}>{Math.round(pct)}% of daily goal</Text>
+          <Text style={[styles.footerText, { color: theme.subText }]}>{remainingCalories.toLocaleString()} kcal remaining</Text>
         </View>
       </View>
 
       {/* MACROS progress bars card */}
-      <View style={styles.macrosCard}>
+      <View style={[styles.macrosCard, { backgroundColor: theme.card }]}>
         <Text style={styles.macrosHeader}>MACROS</Text>
 
         {/* Protein Macro */}
         <View style={styles.macroItemRow}>
           <View style={styles.macroLabelGroup}>
             <Text style={[styles.macroLabel, { color: '#24C76D' }]}>Protein</Text>
-            <Text style={styles.macroValueText}>142g / 180g</Text>
+            <Text style={[styles.macroValueText, { color: theme.text }]}>142g / 180g</Text>
           </View>
-          <View style={styles.macroTrack}>
+          <View style={[styles.macroTrack, { backgroundColor: isDarkMode ? '#2C2C2E' : '#F3F4F6' }]}>
             <View style={[styles.macroFillGreen, { width: '78%' }]} />
           </View>
         </View>
@@ -209,9 +220,9 @@ const MealPlanScreen: React.FC<MealPlanScreenProps> = ({
         <View style={styles.macroItemRow}>
           <View style={styles.macroLabelGroup}>
             <Text style={[styles.macroLabel, { color: '#3B82F6' }]}>Carbs</Text>
-            <Text style={styles.macroValueText}>165g / 250g</Text>
+            <Text style={[styles.macroValueText, { color: theme.text }]}>165g / 250g</Text>
           </View>
-          <View style={styles.macroTrack}>
+          <View style={[styles.macroTrack, { backgroundColor: isDarkMode ? '#2C2C2E' : '#F3F4F6' }]}>
             <View style={[styles.macroFillBlue, { width: '66%' }]} />
           </View>
         </View>
@@ -220,21 +231,21 @@ const MealPlanScreen: React.FC<MealPlanScreenProps> = ({
         <View style={styles.macroItemRow}>
           <View style={styles.macroLabelGroup}>
             <Text style={[styles.macroLabel, { color: '#FF6E5B' }]}>Fat</Text>
-            <Text style={styles.macroValueText}>48g / 65g</Text>
+            <Text style={[styles.macroValueText, { color: theme.text }]}>48g / 65g</Text>
           </View>
-          <View style={styles.macroTrack}>
+          <View style={[styles.macroTrack, { backgroundColor: isDarkMode ? '#2C2C2E' : '#F3F4F6' }]}>
             <View style={[styles.macroFillRed, { width: '73%' }]} />
           </View>
         </View>
       </View>
 
       {/* AI Calorie Scanner Card (Dashed Border) */}
-      <View style={styles.scannerDashedBox}>
+      <View style={[styles.scannerDashedBox, { backgroundColor: isDarkMode ? '#1C1C1E' : '#F8FBF9', borderColor: '#24C76D' }]}>
         <View style={styles.cameraIconBadge}>
           <Text style={styles.cameraEmoji}>📷</Text>
         </View>
-        <Text style={styles.scannerTitle}>AI Calorie Scanner</Text>
-        <Text style={styles.scannerSubtitle}>
+        <Text style={[styles.scannerTitle, { color: theme.text }]}>AI Calorie Scanner</Text>
+        <Text style={[styles.scannerSubtitle, { color: theme.subText }]}>
           Upload a photo of your meal to calculate calories instantly
         </Text>
 
@@ -243,26 +254,26 @@ const MealPlanScreen: React.FC<MealPlanScreenProps> = ({
             <TouchableOpacity style={styles.uploadBtn} onPress={() => handleImageSource(false)}>
               <Text style={styles.uploadBtnText}>Upload Photo</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={[styles.uploadBtn, styles.cameraBtn]} onPress={() => handleImageSource(true)}>
+            <TouchableOpacity style={[styles.uploadBtn, styles.cameraBtn, { backgroundColor: theme.card, borderColor: '#24C76D' }]} onPress={() => handleImageSource(true)}>
               <Text style={[styles.uploadBtnText, { color: '#24C76D' }]}>Use Camera</Text>
             </TouchableOpacity>
           </View>
         )}
 
         {scannedImage && (
-          <View style={styles.scannerPreviewPanel}>
+          <View style={[styles.scannerPreviewPanel, { backgroundColor: theme.card, borderColor: theme.border }]}>
             <Image source={{ uri: scannedImage }} style={styles.scannerPreviewImage} />
             {scanning && (
-              <View style={styles.scannerOverlay}>
+              <View style={[styles.scannerOverlay, { backgroundColor: isDarkMode ? 'rgba(28, 28, 30, 0.9)' : 'rgba(255, 255, 255, 0.85)' }]}>
                 <ActivityIndicator size="small" color="#24C76D" />
-                <Text style={styles.scannerOverlayText}>Identifying ingredients...</Text>
+                <Text style={[styles.scannerOverlayText, { color: theme.text }]}>Identifying ingredients...</Text>
               </View>
             )}
 
             {scanResult && (
               <View style={styles.scannerResultBox}>
                 <Text style={styles.identifiedTitle}>Identified Food Item:</Text>
-                <Text style={styles.identifiedName}>{scanResult.name}</Text>
+                <Text style={[styles.identifiedName, { color: theme.text }]}>{scanResult.name}</Text>
                 <Text style={styles.identifiedCalories}>{scanResult.calories} kcal</Text>
                 <TouchableOpacity style={styles.addScannedBtn} onPress={addScannedMeal}>
                   <Text style={styles.addScannedBtnText}>Add to Today's Meals ＋</Text>
@@ -276,17 +287,17 @@ const MealPlanScreen: React.FC<MealPlanScreenProps> = ({
       {/* Today's Meals logged list */}
       <View style={styles.mealsSection}>
         <View style={styles.mealsSectionHeader}>
-          <Text style={styles.mealsSectionTitle}>Today's Meals</Text>
-          <View style={styles.entriesBadge}>
-            <Text style={styles.entriesBadgeText}>{loggedMeals.length} entries</Text>
+          <Text style={[styles.mealsSectionTitle, { color: theme.text }]}>Today's Meals</Text>
+          <View style={[styles.entriesBadge, { backgroundColor: theme.card, borderColor: theme.border }]}>
+            <Text style={[styles.entriesBadgeText, { color: theme.subText }]}>{loggedMeals.length} entries</Text>
           </View>
         </View>
 
         {filteredMeals.map((meal) => (
-          <View key={meal.id} style={styles.mealRowCard}>
+          <View key={meal.id} style={[styles.mealRowCard, { backgroundColor: theme.card }]}>
             <Image source={{ uri: meal.image }} style={styles.mealThumb} />
             <View style={styles.mealMeta}>
-              <Text style={styles.mealName}>{meal.name}</Text>
+              <Text style={[styles.mealName, { color: theme.text }]}>{meal.name}</Text>
               <Text style={styles.mealTime}>{meal.time}</Text>
             </View>
             <View style={styles.mealCalRight}>

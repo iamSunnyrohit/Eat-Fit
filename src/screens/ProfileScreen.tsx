@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, Switch, TouchableOpacity, Image, TextInput, Alert, ScrollView } from 'react-native';
+import { useTheme } from '../context/ThemeContext';
 
 interface ProfileScreenProps {
   nickname: string;
@@ -23,6 +24,7 @@ const CustomSlider = ({
   max: number; 
   onChange: (v: number) => void 
 }) => {
+  const { isDarkMode } = useTheme();
   const [trackWidth, setTrackWidth] = useState(250);
   const percentage = ((value - min) / (max - min)) * 100;
 
@@ -35,7 +37,7 @@ const CustomSlider = ({
 
   return (
     <View 
-      style={styles.sliderTrack} 
+      style={[styles.sliderTrack, { backgroundColor: isDarkMode ? '#2C2C2E' : '#E5E7EB' }]} 
       onLayout={(e) => setTrackWidth(e.nativeEvent.layout.width)}
       onTouchStart={handlePress}
       onTouchMove={handlePress}
@@ -55,6 +57,15 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({
   handleProfileSyncToggle,
   onSave,
 }) => {
+  const { isDarkMode, setIsDarkMode } = useTheme();
+  const theme = {
+    bg: isDarkMode ? '#131315' : '#F8F9FA',
+    card: isDarkMode ? '#1C1C1E' : '#FFFFFF',
+    text: isDarkMode ? '#FFFFFF' : '#111827',
+    subText: isDarkMode ? '#9CA3AF' : '#6B7280',
+    border: isDarkMode ? '#2A2A2C' : '#E5E7EB',
+    inputBg: isDarkMode ? '#2A2A2C' : '#FFFFFF',
+  };
   // Navigation active sub-screens inside the Profile tab
   const [showPersonalInfo, setShowPersonalInfo] = useState(false);
   const [showSubscription, setShowSubscription] = useState(false);
@@ -110,14 +121,14 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({
   // Render Sub-screen 1: Subscription page
   if (showSubscription) {
     return (
-      <View style={styles.tabContentContainer}>
+      <View style={[styles.tabContentContainer, { backgroundColor: theme.bg }]}>
         {/* Settings Header bar */}
         <View style={styles.topBar}>
           <TouchableOpacity style={styles.backButtonRow} onPress={() => setShowSubscription(false)}>
             <Text style={styles.backArrow}>←</Text>
             <Text style={styles.settingsHeaderTitleText}>Subscription</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.refreshButton}>
+          <TouchableOpacity style={[styles.refreshButton, { backgroundColor: theme.inputBg }]}>
             <Text style={styles.optionsDots}>⋮</Text>
           </TouchableOpacity>
         </View>
@@ -141,16 +152,16 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({
 
           {/* Pro Benefits Section */}
           <View style={styles.benefitsSection}>
-            <Text style={styles.benefitsSectionTitle}>Pro Benefits</Text>
+            <Text style={[styles.benefitsSectionTitle, { color: theme.text }]}>Pro Benefits</Text>
 
             {/* Benefit 1 */}
-            <View style={styles.benefitCard}>
-              <View style={styles.benefitIconWrapper}>
+            <View style={[styles.benefitCard, { backgroundColor: theme.card }]}>
+              <View style={[styles.benefitIconWrapper, { backgroundColor: isDarkMode ? '#2C2C2E' : '#E8FDF0' }]}>
                 <Text style={styles.benefitEmoji}>📊</Text>
               </View>
               <View style={styles.benefitMeta}>
-                <Text style={styles.benefitTitleText}>Advanced Analytics</Text>
-                <Text style={styles.benefitSubtitleText}>
+                <Text style={[styles.benefitTitleText, { color: theme.text }]}>Advanced Analytics</Text>
+                <Text style={[styles.benefitSubtitleText, { color: theme.subText }]}>
                   Deep dive into your metabolic trends and performance metrics.
                 </Text>
                 <Text style={styles.benefitStatusText}>✓ Enabled</Text>
@@ -158,13 +169,13 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({
             </View>
 
             {/* Benefit 2 */}
-            <View style={styles.benefitCard}>
-              <View style={[styles.benefitIconWrapper, { backgroundColor: '#EBFDF2' }]}>
+            <View style={[styles.benefitCard, { backgroundColor: theme.card }]}>
+              <View style={[styles.benefitIconWrapper, { backgroundColor: isDarkMode ? '#2C2C2E' : '#EBFDF2' }]}>
                 <Text style={styles.benefitEmoji}>📷</Text>
               </View>
               <View style={styles.benefitMeta}>
-                <Text style={styles.benefitTitleText}>AI Meal Scanner</Text>
-                <Text style={styles.benefitSubtitleText}>
+                <Text style={[styles.benefitTitleText, { color: theme.text }]}>AI Meal Scanner</Text>
+                <Text style={[styles.benefitSubtitleText, { color: theme.subText }]}>
                   Instant macro-nutrient breakdown using your phone's camera.
                 </Text>
                 <Text style={styles.benefitStatusText}>✓ Enabled</Text>
@@ -172,13 +183,13 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({
             </View>
 
             {/* Benefit 3 */}
-            <View style={styles.benefitCard}>
-              <View style={[styles.benefitIconWrapper, { backgroundColor: '#EEF2FF' }]}>
+            <View style={[styles.benefitCard, { backgroundColor: theme.card }]}>
+              <View style={[styles.benefitIconWrapper, { backgroundColor: isDarkMode ? '#2C2C2E' : '#EEF2FF' }]}>
                 <Text style={styles.benefitEmoji}>🏋️‍♂️</Text>
               </View>
               <View style={styles.benefitMeta}>
-                <Text style={styles.benefitTitleText}>Exclusive Workouts</Text>
-                <Text style={styles.benefitSubtitleText}>
+                <Text style={[styles.benefitTitleText, { color: theme.text }]}>Exclusive Workouts</Text>
+                <Text style={[styles.benefitSubtitleText, { color: theme.subText }]}>
                   Access to premium athlete-designed training programs.
                 </Text>
                 <Text style={styles.benefitStatusText}>✓ Enabled</Text>
@@ -188,14 +199,14 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({
 
           {/* Payment Method Section */}
           <View style={styles.paymentSection}>
-            <Text style={styles.benefitsSectionTitle}>Payment Method</Text>
-            <View style={styles.paymentCard}>
-              <View style={styles.visaCardBadge}>
-                <Text style={styles.visaCardText}>VISA</Text>
+            <Text style={[styles.benefitsSectionTitle, { color: theme.text }]}>Payment Method</Text>
+            <View style={[styles.paymentCard, { backgroundColor: theme.card }]}>
+              <View style={[styles.visaCardBadge, { backgroundColor: theme.inputBg, borderColor: theme.border }]}>
+                <Text style={[styles.visaCardText, { color: theme.text }]}>VISA</Text>
               </View>
               <View style={styles.paymentMeta}>
-                <Text style={styles.paymentCardTitle}>Visa ending in 4242</Text>
-                <Text style={styles.paymentCardExpiry}>Expires 12/26</Text>
+                <Text style={[styles.paymentCardTitle, { color: theme.text }]}>Visa ending in 4242</Text>
+                <Text style={[styles.paymentCardExpiry, { color: theme.subText }]}>Expires 12/26</Text>
               </View>
               <TouchableOpacity>
                 <Text style={styles.editPaymentText}>Edit</Text>
@@ -205,24 +216,24 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({
 
           {/* Management Section */}
           <View style={styles.managementSection}>
-            <Text style={styles.benefitsSectionTitle}>Management</Text>
+            <Text style={[styles.benefitsSectionTitle, { color: theme.text }]}>Management</Text>
 
             <TouchableOpacity style={styles.managePlanBtn} onPress={() => Alert.alert('Manage Plan', 'Redirecting to App Store settings...')}>
               <Text style={styles.managePlanBtnIcon}>🔄</Text>
               <Text style={styles.managePlanBtnText}>Manage Plan</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.restorePurchasesBtn} onPress={() => Alert.alert('Purchases Restored', 'Your Pro account features have been refreshed.')}>
+            <TouchableOpacity style={[styles.restorePurchasesBtn, { backgroundColor: theme.card, borderColor: theme.border }]} onPress={() => Alert.alert('Purchases Restored', 'Your Pro account features have been refreshed.')}>
               <Text style={styles.restorePurchasesBtnIcon}>📥</Text>
-              <Text style={styles.restorePurchasesBtnText}>Restore Purchases</Text>
+              <Text style={[styles.restorePurchasesBtnText, { color: theme.text }]}>Restore Purchases</Text>
             </TouchableOpacity>
           </View>
 
           {/* Progress Separator Line & Footer tagline */}
-          <View style={styles.subFooterLineTrack}>
-            <View style={styles.subFooterLineFill} />
+          <View style={[styles.subFooterLineTrack, { backgroundColor: isDarkMode ? '#2C2C2E' : '#E5E7EB' }]}>
+            <View style={[styles.subFooterLineFill, { backgroundColor: theme.subText }]} />
           </View>
-          <Text style={styles.subFooterText}>Fueling your potential since 2021</Text>
+          <Text style={[styles.subFooterText, { color: theme.subText }]}>Fueling your potential since 2021</Text>
         </ScrollView>
       </View>
     );
@@ -231,14 +242,14 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({
   // Render Sub-screen 3: Security management page
   if (showSecurity) {
     return (
-      <View style={styles.tabContentContainer}>
+      <View style={[styles.tabContentContainer, { backgroundColor: theme.bg }]}>
         {/* Settings Header bar */}
         <View style={styles.topBar}>
           <TouchableOpacity style={styles.backButtonRow} onPress={() => setShowSecurity(false)}>
             <Text style={styles.backArrow}>←</Text>
             <Text style={styles.settingsHeaderTitleText}>Settings</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.refreshButton}>
+          <TouchableOpacity style={[styles.refreshButton, { backgroundColor: theme.inputBg }]}>
             <Text style={styles.optionsDots}>⋮</Text>
           </TouchableOpacity>
         </View>
@@ -260,34 +271,34 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({
           </View>
 
           {/* Password Management Card */}
-          <View style={styles.securityWhiteCard}>
+          <View style={[styles.securityWhiteCard, { backgroundColor: theme.card }]}>
             <View style={styles.securityCardMainRow}>
-              <View style={styles.securityIconWrapper}>
+              <View style={[styles.securityIconWrapper, { backgroundColor: isDarkMode ? '#2C2C2E' : '#E8FDF0' }]}>
                 <Text style={styles.securityCardEmoji}>🔄</Text>
               </View>
               <View style={styles.securityCardMeta}>
-                <Text style={styles.securityCardTitle}>Password Management</Text>
-                <Text style={styles.securityCardSubtitle}>Last changed 4 months ago. Regularly updating helps protect your data.</Text>
+                <Text style={[styles.securityCardTitle, { color: theme.text }]}>Password Management</Text>
+                <Text style={[styles.securityCardSubtitle, { color: theme.subText }]}>Last changed 4 months ago. Regularly updating helps protect your data.</Text>
               </View>
               <Text style={styles.securityChevron}>＞</Text>
             </View>
-            <TouchableOpacity style={styles.changePasswordBtn} onPress={() => Alert.alert('Change Password', 'Password reset instructions have been sent to your email.')}>
-              <Text style={styles.changePasswordBtnText}>Change Password</Text>
+            <TouchableOpacity style={[styles.changePasswordBtn, { borderColor: theme.border }]} onPress={() => Alert.alert('Change Password', 'Password reset instructions have been sent to your email.')}>
+              <Text style={[styles.changePasswordBtnText, { color: theme.text }]}>Change Password</Text>
             </TouchableOpacity>
           </View>
 
           {/* 2FA Card */}
-          <View style={styles.securityWhiteCard}>
+          <View style={[styles.securityWhiteCard, { backgroundColor: theme.card }]}>
             <View style={styles.securityCardMainRow}>
-              <View style={styles.securityIconWrapper}>
+              <View style={[styles.securityIconWrapper, { backgroundColor: isDarkMode ? '#2C2C2E' : '#E8FDF0' }]}>
                 <Text style={styles.securityCardEmoji}>📱</Text>
               </View>
               <View style={styles.securityCardMeta}>
-                <Text style={styles.securityCardTitle}>2FA</Text>
-                <Text style={styles.securityCardSubtitle}>Extra layer of security for your account.</Text>
+                <Text style={[styles.securityCardTitle, { color: theme.text }]}>2FA</Text>
+                <Text style={[styles.securityCardSubtitle, { color: theme.subText }]}>Extra layer of security for your account.</Text>
               </View>
             </View>
-            <View style={styles.securityStatusRow}>
+            <View style={[styles.securityStatusRow, { borderTopColor: theme.border }]}>
               <Text style={[styles.securityStatusLabel, { color: twoFactorEnabled ? '#24C76D' : '#9CA3AF' }]}>
                 STATUS: {twoFactorEnabled ? 'ON' : 'OFF'}
               </Text>
@@ -301,17 +312,17 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({
           </View>
 
           {/* Biometrics Card */}
-          <View style={styles.securityWhiteCard}>
+          <View style={[styles.securityWhiteCard, { backgroundColor: theme.card }]}>
             <View style={styles.securityCardMainRow}>
-              <View style={styles.securityIconWrapper}>
+              <View style={[styles.securityIconWrapper, { backgroundColor: isDarkMode ? '#2C2C2E' : '#E8FDF0' }]}>
                 <Text style={styles.securityCardEmoji}>🧬</Text>
               </View>
               <View style={styles.securityCardMeta}>
-                <Text style={styles.securityCardTitle}>Biometrics</Text>
-                <Text style={styles.securityCardSubtitle}>Use Face ID or Touch ID to sign in.</Text>
+                <Text style={[styles.securityCardTitle, { color: theme.text }]}>Biometrics</Text>
+                <Text style={[styles.securityCardSubtitle, { color: theme.subText }]}>Use Face ID or Touch ID to sign in.</Text>
               </View>
             </View>
-            <View style={styles.securityStatusRow}>
+            <View style={[styles.securityStatusRow, { borderTopColor: theme.border }]}>
               <Text style={[styles.securityStatusLabel, { color: biometricsEnabled ? '#24C76D' : '#9CA3AF' }]}>
                 {biometricsEnabled ? 'ENABLED' : 'DISABLED'}
               </Text>
@@ -326,16 +337,16 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({
 
           {/* Logged-in Devices Section */}
           <View style={styles.devicesSection}>
-            <Text style={styles.devicesSectionTitle}>Logged-in Devices</Text>
+            <Text style={[styles.devicesSectionTitle, { color: theme.text }]}>Logged-in Devices</Text>
 
             {/* Device 1: MacBook Pro */}
-            <View style={styles.deviceItemCard}>
-              <View style={styles.deviceIconBox}>
+            <View style={[styles.deviceItemCard, { backgroundColor: theme.card }]}>
+              <View style={[styles.deviceIconBox, { backgroundColor: isDarkMode ? '#2C2C2E' : '#F3F4F6' }]}>
                 <Text style={styles.deviceEmoji}>💻</Text>
               </View>
               <View style={styles.deviceMeta}>
-                <Text style={styles.deviceModelText}>MacBook Pro 16"</Text>
-                <Text style={styles.deviceLocationText}>Mumbai, India • Active Now</Text>
+                <Text style={[styles.deviceModelText, { color: theme.text }]}>MacBook Pro 16"</Text>
+                <Text style={[styles.deviceLocationText, { color: theme.subText }]}>Mumbai, India • Active Now</Text>
               </View>
               <TouchableOpacity onPress={() => Alert.alert('Log Out Device', 'Logged out of MacBook Pro 16".')}>
                 <Text style={styles.deviceLogOutText}>Log Out</Text>
@@ -343,13 +354,13 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({
             </View>
 
             {/* Device 2: iPhone 15 Pro */}
-            <View style={styles.deviceItemCard}>
-              <View style={styles.deviceIconBox}>
+            <View style={[styles.deviceItemCard, { backgroundColor: theme.card }]}>
+              <View style={[styles.deviceIconBox, { backgroundColor: isDarkMode ? '#2C2C2E' : '#F3F4F6' }]}>
                 <Text style={styles.deviceEmoji}>📱</Text>
               </View>
               <View style={styles.deviceMeta}>
-                <Text style={styles.deviceModelText}>iPhone 15 Pro</Text>
-                <Text style={styles.deviceLocationText}>New Delhi, India • 2 hours ago</Text>
+                <Text style={[styles.deviceModelText, { color: theme.text }]}>iPhone 15 Pro</Text>
+                <Text style={[styles.deviceLocationText, { color: theme.subText }]}>New Delhi, India • 2 hours ago</Text>
               </View>
               <TouchableOpacity onPress={() => Alert.alert('Log Out Device', 'Logged out of iPhone 15 Pro.')}>
                 <Text style={styles.deviceLogOutText}>Log Out</Text>
@@ -370,8 +381,8 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({
           </View>
 
           {/* Delete Account Footer Section */}
-          <View style={styles.deleteAccountContainer}>
-            <Text style={styles.deleteAccountWarningText}>
+          <View style={[styles.deleteAccountContainer, { borderTopColor: theme.border }]}>
+            <Text style={[styles.deleteAccountWarningText, { color: theme.subText }]}>
               Thinking of leaving Eat & Fit? This action is irreversible and all your training data will be permanently erased.
             </Text>
             <TouchableOpacity style={styles.deleteAccountBtn} onPress={() => {
@@ -391,14 +402,14 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({
   // Render Sub-screen 2: Personal Information editing page
   if (showPersonalInfo) {
     return (
-      <View style={styles.tabContentContainer}>
+      <View style={[styles.tabContentContainer, { backgroundColor: theme.bg }]}>
         {/* Settings Header bar */}
         <View style={styles.topBar}>
           <TouchableOpacity style={styles.backButtonRow} onPress={handleCancelDiscard}>
             <Text style={styles.backArrow}>←</Text>
             <Text style={styles.settingsHeaderTitleText}>Settings</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.refreshButton}>
+          <TouchableOpacity style={[styles.refreshButton, { backgroundColor: theme.inputBg }]}>
             <Text style={styles.optionsDots}>⋮</Text>
           </TouchableOpacity>
         </View>
@@ -414,58 +425,58 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({
               <Text style={styles.pencilEmoji}>✏️</Text>
             </TouchableOpacity>
           </View>
-          <Text style={styles.userNameText}>{fullName}</Text>
-          <Text style={styles.personalInfoLabel}>PERSONAL INFORMATION</Text>
+          <Text style={[styles.userNameText, { color: theme.text }]}>{fullName}</Text>
+          <Text style={[styles.personalInfoLabel, { color: theme.subText }]}>PERSONAL INFORMATION</Text>
         </View>
 
         {/* Form Body Scroll */}
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.formScrollContent}>
           {/* Identity Section */}
-          <View style={styles.formSectionCard}>
+          <View style={[styles.formSectionCard, { backgroundColor: theme.card }]}>
             <View style={styles.formSectionTitleRow}>
               <Text style={styles.formSectionEmoji}>👤</Text>
-              <Text style={styles.formSectionTitleText}>Identity</Text>
+              <Text style={[styles.formSectionTitleText, { color: theme.text }]}>Identity</Text>
             </View>
 
             <View style={styles.inputGroup}>
               <Text style={styles.formInputLabel}>FULL NAME</Text>
               <TextInput
-                style={styles.formTextInputField}
+                style={[styles.formTextInputField, { backgroundColor: theme.inputBg, color: theme.text, borderColor: theme.border }]}
                 value={fullName}
                 onChangeText={setFullName}
                 placeholder="Enter full name"
-                placeholderTextColor="#9CA3AF"
+                placeholderTextColor={isDarkMode ? '#9CA3AF' : '#6B7280'}
               />
             </View>
 
             <View style={styles.inputGroup}>
               <Text style={styles.formInputLabel}>EMAIL ADDRESS</Text>
               <TextInput
-                style={styles.formTextInputField}
+                style={[styles.formTextInputField, { backgroundColor: theme.inputBg, color: theme.text, borderColor: theme.border }]}
                 value={email}
                 onChangeText={setEmail}
                 placeholder="Enter email address"
-                placeholderTextColor="#9CA3AF"
+                placeholderTextColor={isDarkMode ? '#9CA3AF' : '#6B7280'}
                 keyboardType="email-address"
               />
             </View>
           </View>
 
           {/* Contact & Demographics Section */}
-          <View style={styles.formSectionCard}>
+          <View style={[styles.formSectionCard, { backgroundColor: theme.card }]}>
             <View style={styles.formSectionTitleRow}>
               <Text style={styles.formSectionEmoji}>📄</Text>
-              <Text style={styles.formSectionTitleText}>Contact & Demographics</Text>
+              <Text style={[styles.formSectionTitleText, { color: theme.text }]}>Contact & Demographics</Text>
             </View>
 
             <View style={styles.inputGroup}>
               <Text style={styles.formInputLabel}>PHONE NUMBER</Text>
               <TextInput
-                style={styles.formTextInputField}
+                style={[styles.formTextInputField, { backgroundColor: theme.inputBg, color: theme.text, borderColor: theme.border }]}
                 value={phone}
                 onChangeText={setPhone}
                 placeholder="Enter phone number"
-                placeholderTextColor="#9CA3AF"
+                placeholderTextColor={isDarkMode ? '#9CA3AF' : '#6B7280'}
                 keyboardType="phone-pad"
               />
             </View>
@@ -473,13 +484,13 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({
             <View style={styles.dualColumnRow}>
               <View style={[styles.inputGroup, { flex: 1, marginRight: 8 }]}>
                 <Text style={styles.formInputLabel}>DATE OF BIRTH</Text>
-                <View style={styles.dobContainerField}>
+                <View style={[styles.dobContainerField, { backgroundColor: theme.inputBg, borderColor: theme.border }]}>
                   <TextInput
-                    style={styles.dobTextInput}
+                    style={[styles.dobTextInput, { color: theme.text }]}
                     value={dob}
                     onChangeText={setDob}
                     placeholder="mm/dd/yyyy"
-                    placeholderTextColor="#9CA3AF"
+                    placeholderTextColor={isDarkMode ? '#9CA3AF' : '#6B7280'}
                   />
                   <Text style={styles.calendarFieldEmoji}>📅</Text>
                 </View>
@@ -487,8 +498,8 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({
 
               <View style={[styles.inputGroup, { flex: 1, marginLeft: 8 }]}>
                 <Text style={styles.formInputLabel}>GENDER</Text>
-                <TouchableOpacity style={styles.dropdownFieldBox} onPress={selectGender}>
-                  <Text style={styles.dropdownFieldText}>{gender}</Text>
+                <TouchableOpacity style={[styles.dropdownFieldBox, { backgroundColor: theme.inputBg, borderColor: theme.border }]} onPress={selectGender}>
+                  <Text style={[styles.dropdownFieldText, { color: theme.text }]}>{gender}</Text>
                   <Text style={styles.dropdownChevron}>▼</Text>
                 </TouchableOpacity>
               </View>
@@ -496,10 +507,10 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({
           </View>
 
           {/* Physical Metrics Section */}
-          <View style={styles.formSectionCard}>
+          <View style={[styles.formSectionCard, { backgroundColor: theme.card }]}>
             <View style={styles.formSectionTitleRow}>
               <Text style={styles.formSectionEmoji}>💳</Text>
-              <Text style={styles.formSectionTitleText}>Physical Metrics</Text>
+              <Text style={[styles.formSectionTitleText, { color: theme.text }]}>Physical Metrics</Text>
             </View>
 
             {/* Height Slider */}
@@ -510,8 +521,8 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({
               </View>
               <CustomSlider value={height} min={140} max={228} onChange={setHeight} />
               <View style={styles.sliderRangeRow}>
-                <Text style={styles.sliderRangeLabel}>140CM</Text>
-                <Text style={styles.sliderRangeLabel}>228CM</Text>
+                <Text style={[styles.sliderRangeLabel, { color: theme.subText }]}>140CM</Text>
+                <Text style={[styles.sliderRangeLabel, { color: theme.subText }]}>228CM</Text>
               </View>
             </View>
 
@@ -523,8 +534,8 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({
               </View>
               <CustomSlider value={weight} min={40} max={150} onChange={setWeight} />
               <View style={styles.sliderRangeRow}>
-                <Text style={styles.sliderRangeLabel}>40KG</Text>
-                <Text style={styles.sliderRangeLabel}>150KG</Text>
+                <Text style={[styles.sliderRangeLabel, { color: theme.subText }]}>40KG</Text>
+                <Text style={[styles.sliderRangeLabel, { color: theme.subText }]}>150KG</Text>
               </View>
             </View>
           </View>
@@ -544,8 +555,9 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({
   }
 
   // Render main settings dashboard
+  // Render main settings dashboard
   return (
-    <View style={styles.tabContentContainer}>
+    <View style={[styles.tabContentContainer, { backgroundColor: theme.bg }]}>
       {/* Top Bar matching design */}
       <View style={styles.topBar}>
         <Text style={styles.appName}>Eat & Fit</Text>
@@ -562,51 +574,51 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({
             <Text style={styles.proBadgeText}>PRO</Text>
           </View>
         </View>
-        <Text style={styles.userNameText}>{nickname || 'Alex Rivers'}</Text>
-        <Text style={styles.userTierText}>🛡️ Elite Athlete • Pro Member</Text>
+        <Text style={[styles.userNameText, { color: theme.text }]}>{nickname || 'Alex Rivers'}</Text>
+        <Text style={[styles.userTierText, { color: theme.subText }]}>🛡️ Elite Athlete • Pro Member</Text>
       </View>
 
       {/* Summary Metrics Row (Weight / Goal Progress) */}
       <View style={styles.metricsRow}>
-        <View style={styles.metricCard}>
-          <Text style={styles.metricLabel}>WEIGHT</Text>
-          <Text style={styles.metricValue}>78.5 <Text style={styles.metricUnit}>kg</Text></Text>
-          <View style={styles.barTrack}>
+        <View style={[styles.metricCard, { backgroundColor: theme.card }]}>
+          <Text style={[styles.metricLabel, { color: theme.subText }]}>WEIGHT</Text>
+          <Text style={[styles.metricValue, { color: theme.text }]}>78.5 <Text style={styles.metricUnit}>kg</Text></Text>
+          <View style={[styles.barTrack, { backgroundColor: isDarkMode ? '#2C2C2E' : '#E5E7EB' }]}>
             <View style={[styles.barFillGreen, { width: '65%' }]} />
           </View>
         </View>
 
-        <View style={styles.metricCard}>
-          <Text style={styles.metricLabel}>GOAL PROGRESS</Text>
+        <View style={[styles.metricCard, { backgroundColor: theme.card }]}>
+          <Text style={[styles.metricLabel, { color: theme.subText }]}>GOAL PROGRESS</Text>
           <Text style={[styles.metricValue, { color: '#3B82F6' }]}>92 <Text style={styles.metricUnitBlue}>%</Text></Text>
-          <View style={styles.barTrack}>
+          <View style={[styles.barTrack, { backgroundColor: isDarkMode ? '#2C2C2E' : '#E5E7EB' }]}>
             <View style={[styles.barFillBlue, { width: '92%' }]} />
           </View>
         </View>
       </View>
 
       {/* Streak Card */}
-      <View style={styles.streakCard}>
-        <Text style={styles.streakLabel}>STREAK</Text>
+      <View style={[styles.streakCard, { backgroundColor: theme.card }]}>
+        <Text style={[styles.streakLabel, { color: theme.subText }]}>STREAK</Text>
         <View style={styles.streakValueRow}>
-          <Text style={styles.streakValue}>24</Text>
+          <Text style={[styles.streakValue, { color: theme.text }]}>24</Text>
           <Text style={styles.fireEmoji}>🔥</Text>
         </View>
-        <Text style={styles.streakSubtitle}>Top 5% of athletes this month</Text>
+        <Text style={[styles.streakSubtitle, { color: theme.subText }]}>Top 5% of athletes this month</Text>
       </View>
 
       {/* Health Integrations section */}
       <View style={styles.sectionContainer}>
-        <Text style={styles.sectionHeaderTitle}>Health Integrations</Text>
+        <Text style={[styles.sectionHeaderTitle, { color: theme.text }]}>Health Integrations</Text>
 
         {/* Apple HealthKit Switch */}
-        <View style={styles.integrationRow}>
-          <View style={styles.integrationIconBox}>
+        <View style={[styles.integrationRow, { backgroundColor: theme.card }]}>
+          <View style={[styles.integrationIconBox, { backgroundColor: isDarkMode ? '#2C2C2E' : '#EEF2FF' }]}>
             <Text style={styles.integrationEmoji}>➕</Text>
           </View>
           <View style={styles.integrationMeta}>
-            <Text style={styles.integrationName}>Apple HealthKit</Text>
-            <Text style={styles.integrationDesc}>Sync steps, sleep, and heart rate</Text>
+            <Text style={[styles.integrationName, { color: theme.text }]}>Apple HealthKit</Text>
+            <Text style={[styles.integrationDesc, { color: theme.subText }]}>Sync steps, sleep, and heart rate</Text>
           </View>
           <Switch
             trackColor={{ false: '#E5E7EB', true: '#24C76D' }}
@@ -618,13 +630,13 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({
         </View>
 
         {/* Google Health Connect Switch */}
-        <View style={styles.integrationRow}>
-          <View style={[styles.integrationIconBox, { backgroundColor: '#EBFDF2' }]}>
+        <View style={[styles.integrationRow, { backgroundColor: theme.card }]}>
+          <View style={[styles.integrationIconBox, { backgroundColor: isDarkMode ? '#2C2C2E' : '#EBFDF2' }]}>
             <Text style={styles.integrationEmoji}>🔁</Text>
           </View>
           <View style={styles.integrationMeta}>
-            <Text style={styles.integrationName}>Google Health Connect</Text>
-            <Text style={styles.integrationDesc}>Connected to Pixel Watch 2</Text>
+            <Text style={[styles.integrationName, { color: theme.text }]}>Google Health Connect</Text>
+            <Text style={[styles.integrationDesc, { color: theme.subText }]}>Connected to Pixel Watch 2</Text>
           </View>
           <Switch
             trackColor={{ false: '#E5E7EB', true: '#24C76D' }}
@@ -638,48 +650,62 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({
 
       {/* Account Settings section */}
       <View style={styles.sectionContainer}>
-        <Text style={styles.sectionHeaderTitle}>Account Settings</Text>
+        <Text style={[styles.sectionHeaderTitle, { color: theme.text }]}>Account Settings</Text>
 
         {/* Personal Info */}
-        <TouchableOpacity style={styles.settingListItem} onPress={() => setShowPersonalInfo(true)}>
-          <View style={styles.settingIconWrapper}>
+        <TouchableOpacity style={[styles.settingListItem, { backgroundColor: theme.card }]} onPress={() => setShowPersonalInfo(true)}>
+          <View style={[styles.settingIconWrapper, { backgroundColor: isDarkMode ? '#2C2C2E' : '#F3F4F6' }]}>
             <Text style={styles.settingEmoji}>👤</Text>
           </View>
-          <Text style={styles.settingTitle}>Personal Information</Text>
+          <Text style={[styles.settingTitle, { color: theme.text }]}>Personal Information</Text>
           <Text style={styles.settingArrow}>＞</Text>
         </TouchableOpacity>
 
         {/* Subscription */}
-        <TouchableOpacity style={styles.settingListItem} onPress={() => setShowSubscription(true)}>
-          <View style={styles.settingIconWrapper}>
+        <TouchableOpacity style={[styles.settingListItem, { backgroundColor: theme.card }]} onPress={() => setShowSubscription(true)}>
+          <View style={[styles.settingIconWrapper, { backgroundColor: isDarkMode ? '#2C2C2E' : '#F3F4F6' }]}>
             <Text style={styles.settingEmoji}>💳</Text>
           </View>
-          <Text style={styles.settingTitle}>Subscription</Text>
+          <Text style={[styles.settingTitle, { color: theme.text }]}>Subscription</Text>
           <Text style={styles.tierHighlightText}>Annual Pro</Text>
           <Text style={styles.settingArrow}>＞</Text>
         </TouchableOpacity>
 
         {/* Notifications */}
-        <TouchableOpacity style={styles.settingListItem}>
-          <View style={styles.settingIconWrapper}>
+        <TouchableOpacity style={[styles.settingListItem, { backgroundColor: theme.card }]}>
+          <View style={[styles.settingIconWrapper, { backgroundColor: isDarkMode ? '#2C2C2E' : '#F3F4F6' }]}>
             <Text style={styles.settingEmoji}>🔔</Text>
           </View>
-          <Text style={styles.settingTitle}>Notifications</Text>
+          <Text style={[styles.settingTitle, { color: theme.text }]}>Notifications</Text>
           <Text style={styles.settingArrow}>＞</Text>
         </TouchableOpacity>
 
         {/* Security */}
-        <TouchableOpacity style={styles.settingListItem} onPress={() => setShowSecurity(true)}>
-          <View style={styles.settingIconWrapper}>
+        <TouchableOpacity style={[styles.settingListItem, { backgroundColor: theme.card }]} onPress={() => setShowSecurity(true)}>
+          <View style={[styles.settingIconWrapper, { backgroundColor: isDarkMode ? '#2C2C2E' : '#F3F4F6' }]}>
             <Text style={styles.settingEmoji}>🛡️</Text>
           </View>
-          <Text style={styles.settingTitle}>Security</Text>
+          <Text style={[styles.settingTitle, { color: theme.text }]}>Security</Text>
           <Text style={styles.settingArrow}>＞</Text>
         </TouchableOpacity>
+
+        {/* Dark Mode switch */}
+        <View style={[styles.settingListItem, { backgroundColor: theme.card }]}>
+          <View style={[styles.settingIconWrapper, { backgroundColor: isDarkMode ? '#2C2C2E' : '#F3F4F6' }]}>
+            <Text style={styles.settingEmoji}>🌙</Text>
+          </View>
+          <Text style={[styles.settingTitle, { color: theme.text }]}>Dark Mode</Text>
+          <Switch
+            value={isDarkMode}
+            onValueChange={setIsDarkMode}
+            trackColor={{ false: '#D1D5DB', true: '#24C76D' }}
+            thumbColor={isDarkMode ? '#FFFFFF' : '#F3F4F6'}
+          />
+        </View>
       </View>
 
       {/* Sign Out Outlined Button */}
-      <TouchableOpacity style={styles.signOutButton} onPress={triggerSignOut}>
+      <TouchableOpacity style={[styles.signOutButton, { backgroundColor: theme.card, borderColor: '#EF4444' }]} onPress={triggerSignOut}>
         <Text style={styles.signOutIcon}>🚪</Text>
         <Text style={styles.signOutText}>Sign Out</Text>
       </TouchableOpacity>

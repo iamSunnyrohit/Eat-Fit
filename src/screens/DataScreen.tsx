@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { useTheme } from '../context/ThemeContext';
 
 interface DataScreenProps {
   steps: number;
@@ -14,6 +15,16 @@ const DataScreen: React.FC<DataScreenProps> = ({
   consumedCalories,
   setConsumedCalories,
 }) => {
+  const { isDarkMode } = useTheme();
+  const theme = {
+    bg: isDarkMode ? '#131315' : '#F8F9FA',
+    card: isDarkMode ? '#1C1C1E' : '#FFFFFF',
+    text: isDarkMode ? '#FFFFFF' : '#111827',
+    subText: isDarkMode ? '#9CA3AF' : '#6B7280',
+    border: isDarkMode ? '#2A2A2C' : '#E5E7EB',
+    inputBg: isDarkMode ? '#2A2A2C' : '#FFFFFF',
+  };
+
   // Navigation active tab: 'calories' | 'minutes'
   const [activityMode, setActivityMode] = useState<'calories' | 'minutes'>('calories');
 
@@ -76,7 +87,7 @@ const DataScreen: React.FC<DataScreenProps> = ({
     : `${Math.round(peakPoint.val)} min`;
 
   return (
-    <View style={styles.tabContentContainer}>
+    <View style={[styles.tabContentContainer, { backgroundColor: theme.bg }]}>
       {/* Top Bar matching design */}
       <View style={styles.topBar}>
         <Text style={styles.appName}>Eat & Fit</Text>
@@ -90,19 +101,19 @@ const DataScreen: React.FC<DataScreenProps> = ({
 
       {/* Title section */}
       <View style={styles.titleSection}>
-        <Text style={styles.weeklyProgressTitle}>Weekly Progress</Text>
+        <Text style={[styles.weeklyProgressTitle, { color: theme.text }]}>Weekly Progress</Text>
         <View style={styles.weekTagContainer}>
           <Text style={styles.weekTagText}>WEEK 42</Text>
         </View>
       </View>
 
       {/* Calories / Minutes toggle selector pill */}
-      <View style={styles.toggleContainer}>
+      <View style={[styles.toggleContainer, { backgroundColor: isDarkMode ? '#2C2C2E' : '#F3F4F6' }]}>
         <TouchableOpacity 
           style={[styles.toggleButton, activityMode === 'calories' && styles.toggleButtonActive]}
           onPress={() => setActivityMode('calories')}
         >
-          <Text style={[styles.toggleText, activityMode === 'calories' && styles.toggleTextActive]}>
+          <Text style={[styles.toggleText, { color: activityMode === 'calories' ? '#FFFFFF' : theme.subText }]}>
             Calories
           </Text>
         </TouchableOpacity>
@@ -110,22 +121,22 @@ const DataScreen: React.FC<DataScreenProps> = ({
           style={[styles.toggleButton, activityMode === 'minutes' && styles.toggleButtonActive]}
           onPress={() => setActivityMode('minutes')}
         >
-          <Text style={[styles.toggleText, activityMode === 'minutes' && styles.toggleTextActive]}>
+          <Text style={[styles.toggleText, { color: activityMode === 'minutes' ? '#FFFFFF' : theme.subText }]}>
             Minutes
           </Text>
         </TouchableOpacity>
       </View>
 
       {/* Main Dotted Grid Line Graph Card */}
-      <View style={styles.chartCard}>
+      <View style={[styles.chartCard, { backgroundColor: theme.card }]}>
         <View 
           style={styles.chartArea}
           onLayout={(e) => setChartWidth(e.nativeEvent.layout.width)}
         >
           {/* Horizontal dotted grid tracks */}
-          <View style={[styles.gridTrack, { top: 20 }]} />
-          <View style={[styles.gridTrack, { top: 70 }]} />
-          <View style={[styles.gridTrack, { top: 120 }]} />
+          <View style={[styles.gridTrack, { top: 20, borderColor: theme.border }]} />
+          <View style={[styles.gridTrack, { top: 70, borderColor: theme.border }]} />
+          <View style={[styles.gridTrack, { top: 120, borderColor: theme.border }]} />
 
           {/* Render connecting line segments */}
           {chartWidth > 0 && segments}
@@ -143,7 +154,7 @@ const DataScreen: React.FC<DataScreenProps> = ({
                   width: isPeak ? 12 : 8,
                   height: isPeak ? 12 : 8,
                   borderRadius: isPeak ? 6 : 4,
-                  backgroundColor: isPeak ? '#FFFFFF' : '#24C76D',
+                  backgroundColor: isPeak ? (isDarkMode ? '#1C1C1E' : '#FFFFFF') : '#24C76D',
                   borderWidth: isPeak ? 3 : 0,
                   borderColor: '#24C76D',
                   zIndex: 10,
@@ -160,7 +171,7 @@ const DataScreen: React.FC<DataScreenProps> = ({
                 left: peakPoint.x - 45,
                 top: peakPoint.y - 42,
                 width: 90,
-                backgroundColor: '#FFFFFF',
+                backgroundColor: theme.card,
                 borderRadius: 8,
                 paddingVertical: 5,
                 alignItems: 'center',
@@ -185,29 +196,29 @@ const DataScreen: React.FC<DataScreenProps> = ({
         {/* Bottom Weekdays Axis */}
         <View style={styles.daysLabelsRow}>
           {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day) => (
-            <Text key={day} style={styles.dayLabelText}>{day}</Text>
+            <Text key={day} style={[styles.dayLabelText, { color: theme.subText }]}>{day}</Text>
           ))}
         </View>
       </View>
 
       {/* Summary metrics dual-column progress rows */}
       <View style={styles.metricsRow}>
-        <View style={styles.metricCard}>
-          <Text style={styles.metricLabel}>Avg Daily Burn</Text>
+        <View style={[styles.metricCard, { backgroundColor: theme.card }]}>
+          <Text style={[styles.metricLabel, { color: theme.subText }]}>Avg Daily Burn</Text>
           <Text style={styles.metricValue}>
             {activityMode === 'calories' ? '542 kcal' : '46 min'}
           </Text>
-          <View style={styles.barTrack}>
+          <View style={[styles.barTrack, { backgroundColor: isDarkMode ? '#2C2C2E' : '#F3F4F6' }]}>
             <View style={[styles.barFillGreen, { width: '75%' }]} />
           </View>
         </View>
 
-        <View style={styles.metricCard}>
-          <Text style={styles.metricLabel}>Total Training</Text>
+        <View style={[styles.metricCard, { backgroundColor: theme.card }]}>
+          <Text style={[styles.metricLabel, { color: theme.subText }]}>Total Training</Text>
           <Text style={[styles.metricValue, { color: '#3B82F6' }]}>
             {activityMode === 'calories' ? '324 min' : '210 min'}
           </Text>
-          <View style={styles.barTrack}>
+          <View style={[styles.barTrack, { backgroundColor: isDarkMode ? '#2C2C2E' : '#F3F4F6' }]}>
             <View style={[styles.barFillBlue, { width: '60%' }]} />
           </View>
         </View>
@@ -216,54 +227,54 @@ const DataScreen: React.FC<DataScreenProps> = ({
       {/* Recent Activity logs */}
       <View style={styles.recentLogsSection}>
         <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Recent Logs</Text>
+          <Text style={[styles.sectionTitle, { color: theme.text }]}>Recent Logs</Text>
           <TouchableOpacity>
             <Text style={styles.viewAllText}>View All</Text>
           </TouchableOpacity>
         </View>
 
         {/* Log item 1 */}
-        <View style={styles.logCard}>
-          <View style={[styles.logIconWrapper, { backgroundColor: '#E8FDF0' }]}>
+        <View style={[styles.logCard, { backgroundColor: theme.card }]}>
+          <View style={[styles.logIconWrapper, { backgroundColor: isDarkMode ? '#2C2C2E' : '#E8FDF0' }]}>
             <Text style={styles.logEmoji}>🏋️‍♂️</Text>
           </View>
           <View style={styles.logDetails}>
-            <Text style={styles.logTitle}>Functional Training</Text>
-            <Text style={styles.logSubtitle}>45 min • Today, 08:30 AM</Text>
+            <Text style={[styles.logTitle, { color: theme.text }]}>Functional Training</Text>
+            <Text style={[styles.logSubtitle, { color: theme.subText }]}>45 min • Today, 08:30 AM</Text>
           </View>
           <View style={styles.logRight}>
             <Text style={styles.logMetricValue}>480 kcal</Text>
-            <Text style={styles.logSubIcon}>⌚</Text>
+            <Text style={[styles.logSubIcon, { color: theme.subText }]}>⌚</Text>
           </View>
         </View>
 
         {/* Log item 2 */}
-        <View style={styles.logCard}>
-          <View style={[styles.logIconWrapper, { backgroundColor: '#EEF2FF' }]}>
+        <View style={[styles.logCard, { backgroundColor: theme.card }]}>
+          <View style={[styles.logIconWrapper, { backgroundColor: isDarkMode ? '#2C2C2E' : '#EEF2FF' }]}>
             <Text style={styles.logEmoji}>🏃‍♂️</Text>
           </View>
           <View style={styles.logDetails}>
-            <Text style={styles.logTitle}>Morning Trail Run</Text>
-            <Text style={styles.logSubtitle}>32 min • Yesterday</Text>
+            <Text style={[styles.logTitle, { color: theme.text }]}>Morning Trail Run</Text>
+            <Text style={[styles.logSubtitle, { color: theme.subText }]}>32 min • Yesterday</Text>
           </View>
           <View style={styles.logRight}>
             <Text style={styles.logMetricValue}>320 kcal</Text>
-            <Text style={styles.logSubIcon}>❤️</Text>
+            <Text style={[styles.logSubIcon, { color: theme.subText }]}>❤️</Text>
           </View>
         </View>
 
         {/* Log item 3 */}
-        <View style={styles.logCard}>
-          <View style={[styles.logIconWrapper, { backgroundColor: '#FFEBE8' }]}>
+        <View style={[styles.logCard, { backgroundColor: theme.card }]}>
+          <View style={[styles.logIconWrapper, { backgroundColor: isDarkMode ? '#2C2C2E' : '#FFEBE8' }]}>
             <Text style={styles.logEmoji}>🥗</Text>
           </View>
           <View style={styles.logDetails}>
-            <Text style={styles.logTitle}>Active Recovery</Text>
-            <Text style={styles.logSubtitle}>20 min • Oct 21</Text>
+            <Text style={[styles.logTitle, { color: theme.text }]}>Active Recovery</Text>
+            <Text style={[styles.logSubtitle, { color: theme.subText }]}>20 min • Oct 21</Text>
           </View>
           <View style={styles.logRight}>
             <Text style={styles.logMetricValue}>120 kcal</Text>
-            <Text style={styles.logSubIcon}>🔁</Text>
+            <Text style={[styles.logSubIcon, { color: theme.subText }]}>🔁</Text>
           </View>
         </View>
       </View>
