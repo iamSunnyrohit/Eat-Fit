@@ -12,7 +12,16 @@ app.use(express.json());
 
 // Routes
 const profileRoutes = require('./routes/profile');
+const activityRoutes = require('./routes/activity');
+const mealRoutes = require('./routes/meal');
+const subscriptionRoutes = require('./routes/subscription');
+const securityRoutes = require('./routes/security');
+
 app.use('/api/profiles', profileRoutes);
+app.use('/api/activities', activityRoutes);
+app.use('/api/meals', mealRoutes);
+app.use('/api/subscriptions', subscriptionRoutes);
+app.use('/api/security', securityRoutes);
 
 // Base route for server checking
 app.get('/', (req, res) => {
