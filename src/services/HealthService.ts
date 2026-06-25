@@ -6,7 +6,8 @@ const hasHealthKitNativeModule = !!(NativeModules && NativeModules.AppleHealthKi
 
 if (Platform.OS === 'ios' && hasHealthKitNativeModule) {
   try {
-    AppleHealthKit = require('react-native-health').default;
+    const healthModule = require('react-native-health');
+    AppleHealthKit = healthModule.default || healthModule;
   } catch (error) {
     console.warn('Failed to load react-native-health package:', error);
   }
