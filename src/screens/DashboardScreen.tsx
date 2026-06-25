@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 
 interface DashboardScreenProps {
   nickname: string;
@@ -29,112 +29,185 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({
     return Math.min(percentage, 100);
   };
 
+  const pct = getCaloriePercentage();
+  const dynamicBorders = {
+    borderTopColor: pct >= 25 ? '#24C76D' : '#E5E7EB',
+    borderRightColor: pct >= 50 ? '#24C76D' : '#E5E7EB',
+    borderBottomColor: pct >= 75 ? '#24C76D' : '#E5E7EB',
+    borderLeftColor: pct >= 95 ? '#24C76D' : '#E5E7EB',
+  };
+
   return (
     <View style={styles.tabContentContainer}>
-      {/* Header */}
-      <View style={styles.header}>
-        <View>
-          <Text style={styles.greeting}>Hello, {nickname}! 👋</Text>
-          <Text style={styles.subtitle}>
-            {syncHealthDevices ? '⌚ Apple Watch Connected' : '⌚ Device Sync Disabled'}
-          </Text>
+      {/* Top Bar matching screenshot */}
+      <View style={styles.topBar}>
+        <View style={styles.topBarLeft}>
+          <View style={styles.avatarContainer}>
+            <Image
+              source={{ uri: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80' }}
+              style={styles.avatarImage}
+            />
+          </View>
+          <Text style={styles.appName}>Eat & Fit</Text>
         </View>
-        <TouchableOpacity style={styles.profileBadge} onPress={onEditProfilePress}>
-          <Text style={styles.profileBadgeText}>Edit Profile</Text>
+        <TouchableOpacity style={styles.refreshButton}>
+          <Text style={styles.refreshEmoji}>🔄</Text>
         </TouchableOpacity>
       </View>
 
-      {/* Daily Progress Card */}
-      <View style={styles.progressCard}>
-        <Text style={styles.progressTitle}>Daily Calorie Budget</Text>
-        <View style={styles.progressMetrics}>
-          <View>
-            <Text style={styles.metricNumber}>{consumedCalories}</Text>
-            <Text style={styles.metricLabel}>Consumed kcal</Text>
-          </View>
-          <View style={styles.divider} />
-          <View>
-            <Text style={[styles.metricNumber, { color: '#4a90e2' }]}>{dailyCalorieTarget}</Text>
-            <Text style={styles.metricLabel}>Target kcal</Text>
-          </View>
-          <View style={styles.divider} />
-          <View>
-            <Text style={[styles.metricNumber, { color: '#ffcc00' }]}>
-              {Math.max(dailyCalorieTarget - consumedCalories + (syncHealthDevices ? activeCalories : 0), 0)}
-            </Text>
-            <Text style={styles.metricLabel}>Remaining kcal</Text>
-          </View>
-        </View>
-
-        {/* Custom Progress Bar */}
-        <View style={styles.progressBarBackground}>
-          <View
-            style={[
-              styles.progressBarFill,
-              {
-                width: `${getCaloriePercentage()}%`,
-                backgroundColor: consumedCalories > totalTarget ? '#ff3b30' : '#34c759'
-              }
-            ]}
-          />
-        </View>
-        <Text style={styles.progressBarPercentage}>{Math.round(getCaloriePercentage())}% budget consumed</Text>
+      {/* Welcome Title */}
+      <View style={styles.welcomeSection}>
+        <Text style={styles.progressSubtitle}>TODAY'S PROGRESS</Text>
+        <Text style={styles.welcomeTitle}>Welcome back, {nickname}</Text>
       </View>
 
-      {/* Apple Watch Integration Section */}
-      {syncHealthDevices ? (
-        <View style={styles.watchSyncCard}>
-          <View style={styles.watchSyncHeader}>
-            <Text style={styles.watchSyncTitle}>⌚ Apple Watch Sync Active</Text>
-            <View style={styles.watchStatusBadge}>
-              <View style={styles.activeDot} />
-              <Text style={styles.watchStatusText}>Live</Text>
-            </View>
-          </View>
-          
-          <View style={styles.watchMetricsRow}>
-            {/* Steps metric */}
-            <View style={styles.watchMetricBox}>
-              <Text style={styles.watchEmoji}>👣</Text>
-              <View style={{ flex: 1 }}>
-                <Text style={styles.watchMetricValue} numberOfLines={1}>{steps.toLocaleString()}</Text>
-                <Text style={styles.watchMetricLabel}>Steps Today</Text>
-              </View>
-            </View>
-
-            {/* Active Calories metric */}
-            <View style={styles.watchMetricBox}>
-              <Text style={styles.watchEmoji}>🔥</Text>
-              <View style={{ flex: 1 }}>
-                <Text style={styles.watchMetricValue} numberOfLines={1}>+{activeCalories} kcal</Text>
-                <Text style={styles.watchMetricLabel}>Active Burned</Text>
-              </View>
-            </View>
-          </View>
-        </View>
-      ) : (
-        <View style={styles.watchSyncOfflineCard}>
-          <View style={styles.watchSyncHeader}>
-            <Text style={styles.watchSyncTitleOffline}>⌚ Apple Watch Not Synced</Text>
-            <TouchableOpacity style={styles.connectWatchButton} onPress={onEnableSyncPress}>
-              <Text style={styles.connectWatchButtonText}>Enable Sync</Text>
-            </TouchableOpacity>
-          </View>
-          <Text style={styles.watchSyncOfflineDesc}>
-            Enable Device Sync in profile settings to dynamically import steps and active calories from your Apple Watch.
+      {/* Main Goal Card with Circular Progress Ring */}
+      <View style={styles.mainCard}>
+        <Text style={styles.dailyGoalLabel}>Daily Goal</Text>
+        <Text style={styles.dailyGoalValue}>
+          <Text style={styles.greenText}>{consumedCalories.toLocaleString()}</Text>
+          <Text style={styles.greyText}> / {dailyCalorieTarget.toLocaleString()} kcal</Text>
+        </Text>
+        <View style={styles.leftCaloriesBadge}>
+          <View style={styles.greenDot} />
+          <Text style={styles.leftCaloriesText}>
+            {Math.max(dailyCalorieTarget - consumedCalories + (syncHealthDevices ? activeCalories : 0), 0).toLocaleString()} kcal left
           </Text>
         </View>
-      )}
 
-      {/* Simple Dashboard Overview Stats */}
-      <View style={styles.dashboardStatsGrid}>
-        <View style={styles.statMiniCard}>
-          <Text style={styles.statMiniTitle}>Active Focus</Text>
-          <Text style={styles.statMiniValue}>Fat Burn</Text>
+        {/* Circular Progress Ring utilizing quadrants border color logic */}
+        <View style={styles.ringOuter}>
+          <View style={[styles.ringQuadrantBorder, dynamicBorders]}>
+            <View style={styles.ringInner}>
+              <Text style={styles.ringPercentage}>{Math.round(pct)}%</Text>
+              <Text style={styles.ringSubLabel}>Consumed</Text>
+            </View>
+          </View>
         </View>
-        <View style={styles.statMiniCard}>
-          <Text style={styles.statMiniTitle}>Consistency</Text>
-          <Text style={[styles.statMiniValue, { color: '#34c759' }]}>94% 🔥</Text>
+      </View>
+
+      {/* Secondary Metrics sub-cards */}
+      <View style={styles.metricsRow}>
+        {/* Active Calories Card */}
+        <View style={styles.metricCard}>
+          <View style={styles.metricCardHeader}>
+            <View style={[styles.iconContainer, { backgroundColor: '#E8FDF0' }]}>
+              <Text style={styles.metricEmoji}>🏋️‍♂️</Text>
+            </View>
+            <Text style={styles.metricChangeText}>+12%</Text>
+          </View>
+          <Text style={styles.metricCardLabel}>Active Calories</Text>
+          <Text style={styles.metricCardValue}>
+            {activeCalories.toLocaleString()}{' '}
+            <Text style={styles.metricUnitText}>kcal</Text>
+          </Text>
+          <View style={styles.progressBarTrack}>
+            <View style={[styles.progressBarFillGreen, { width: `${Math.min((activeCalories / 1000) * 100, 100)}%` }]} />
+          </View>
+        </View>
+
+        {/* Workout Duration Card */}
+        <View style={styles.metricCard}>
+          <View style={styles.metricCardHeader}>
+            <View style={[styles.iconContainer, { backgroundColor: '#EEF2FF' }]}>
+              <Text style={styles.metricEmoji}>⏱️</Text>
+            </View>
+            <Text style={[styles.metricChangeText, { color: '#9CA3AF' }]}>Daily</Text>
+          </View>
+          <Text style={styles.metricCardLabel}>Workout Duration</Text>
+          <Text style={styles.metricCardValue}>
+            {Math.round(activeCalories / 15 + 20)}{' '}
+            <Text style={styles.metricUnitText}>min</Text>
+          </Text>
+          <View style={styles.progressBarTrack}>
+            <View style={[styles.progressBarFillBlue, { width: '65%' }]} />
+          </View>
+        </View>
+      </View>
+
+      {/* Today's Nutrition Section */}
+      <View style={styles.nutritionCard}>
+        <View style={styles.nutritionHeader}>
+          <View style={styles.nutritionTitleGroup}>
+            <Text style={styles.nutritionForkKnife}>🥗</Text>
+            <Text style={styles.nutritionTitle}>Today's Nutrition</Text>
+          </View>
+          <TouchableOpacity onPress={onEditProfilePress}>
+            <Text style={styles.viewDetailsText}>View Details</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Macros Bar charts */}
+        <View style={styles.nutritionBarsContainer}>
+          {/* Protein bar */}
+          <View style={styles.nutritionBarColumn}>
+            <View style={styles.barOuterTrack}>
+              <View style={[styles.barFillGreen, { height: '55%' }]} />
+            </View>
+            <Text style={styles.macroLabel}>PROTEIN</Text>
+            <Text style={styles.macroValue}>142g</Text>
+            <View style={styles.macroIndicatorLineGreen} />
+          </View>
+
+          {/* Carbs bar */}
+          <View style={styles.nutritionBarColumn}>
+            <View style={styles.barOuterTrack}>
+              <View style={[styles.barFillBlue, { height: '80%' }]} />
+            </View>
+            <Text style={styles.macroLabel}>CARBS</Text>
+            <Text style={styles.macroValue}>265g</Text>
+            <View style={styles.macroIndicatorLineBlue} />
+          </View>
+
+          {/* Fat bar */}
+          <View style={styles.nutritionBarColumn}>
+            <View style={styles.barOuterTrack}>
+              <View style={[styles.barFillRed, { height: '40%' }]} />
+            </View>
+            <Text style={styles.macroLabel}>FAT</Text>
+            <Text style={styles.macroValue}>58g</Text>
+            <View style={styles.macroIndicatorLineRed} />
+          </View>
+        </View>
+      </View>
+
+      {/* Recent Activity List */}
+      <View style={styles.recentActivitySection}>
+        <View style={styles.activityHeader}>
+          <Text style={styles.activityTitle}>RECENT ACTIVITY</Text>
+          <TouchableOpacity onPress={onEnableSyncPress}>
+            <Text style={styles.moreIcon}>•••</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Morning Run */}
+        <View style={styles.activityRow}>
+          <View style={[styles.activityIconBadge, { backgroundColor: '#E8FDF0' }]}>
+            <Text style={styles.activityBadgeText}>🏃‍♂️</Text>
+          </View>
+          <View style={styles.activityMeta}>
+            <Text style={styles.activityName}>Morning Run</Text>
+            <Text style={styles.activityTime}>Today, 7:15 AM</Text>
+          </View>
+          <View style={styles.activityMetricsRight}>
+            <Text style={styles.activityCalBurn}>420 kcal</Text>
+            <Text style={[styles.activitySubText, { color: '#24C76D' }]}>5.2 km</Text>
+          </View>
+        </View>
+
+        {/* Healthy Bowl */}
+        <View style={styles.activityRow}>
+          <View style={[styles.activityIconBadge, { backgroundColor: '#EEF2FF' }]}>
+            <Text style={styles.activityBadgeText}>🍔</Text>
+          </View>
+          <View style={styles.activityMeta}>
+            <Text style={styles.activityName}>Healthy Bowl</Text>
+            <Text style={styles.activityTime}>Today, 1:30 PM</Text>
+          </View>
+          <View style={styles.activityMetricsRight}>
+            <Text style={styles.activityCalBurn}>640 kcal</Text>
+            <Text style={[styles.activitySubText, { color: '#3B82F6' }]}>High Protein</Text>
+          </View>
         </View>
       </View>
     </View>
@@ -145,223 +218,389 @@ const styles = StyleSheet.create({
   tabContentContainer: {
     flex: 1,
   },
-  header: {
-    marginTop: 40,
-    marginBottom: 20,
+  topBar: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    paddingVertical: 10,
+    marginTop: 10,
   },
-  greeting: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#ffffff',
-  },
-  subtitle: {
-    fontSize: 12,
-    color: '#34c759',
-    marginTop: 4,
-    fontWeight: '500',
-  },
-  profileBadge: {
-    backgroundColor: '#1e2029',
-    borderRadius: 8,
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderWidth: 1,
-    borderColor: '#2c2e3a',
-  },
-  profileBadgeText: {
-    color: '#4a90e2',
-    fontSize: 12,
-    fontWeight: '600',
-  },
-  progressCard: {
-    backgroundColor: '#1e2029',
-    borderRadius: 16,
-    padding: 24,
-    borderWidth: 1,
-    borderColor: '#2c2e3a',
-    marginBottom: 24,
-  },
-  progressTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#ffffff',
-    marginBottom: 16,
-  },
-  progressMetrics: {
+  topBarLeft: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
     alignItems: 'center',
-    marginBottom: 18,
   },
-  divider: {
-    width: 1,
-    height: 30,
-    backgroundColor: '#2c2e3a',
+  avatarContainer: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    overflow: 'hidden',
+    backgroundColor: '#E5E7EB',
   },
-  metricNumber: {
+  avatarImage: {
+    width: '100%',
+    height: '100%',
+  },
+  appName: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#34c759',
-    textAlign: 'center',
+    color: '#24C76D',
+    marginLeft: 12,
   },
-  metricLabel: {
-    fontSize: 11,
-    color: '#a0a5b5',
-    marginTop: 4,
-    textAlign: 'center',
-  },
-  progressBarBackground: {
-    height: 10,
-    backgroundColor: '#131419',
-    borderRadius: 5,
-    overflow: 'hidden',
-    marginBottom: 8,
-  },
-  progressBarFill: {
-    height: '100%',
-    borderRadius: 5,
-  },
-  progressBarPercentage: {
-    fontSize: 12,
-    color: '#a0a5b5',
-    textAlign: 'right',
-  },
-  watchSyncCard: {
-    backgroundColor: 'rgba(30, 32, 41, 0.75)',
-    borderRadius: 16,
-    padding: 20,
-    borderWidth: 1,
-    borderColor: 'rgba(52, 199, 89, 0.25)',
-    marginBottom: 24,
-    shadowColor: '#34c759',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-  },
-  watchSyncOfflineCard: {
-    backgroundColor: '#1e2029',
-    borderRadius: 16,
-    padding: 20,
-    borderWidth: 1,
-    borderColor: '#2c2e3a',
-    marginBottom: 24,
-  },
-  watchSyncHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+  refreshButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: '#F3F4F6',
     alignItems: 'center',
-    marginBottom: 16,
+    justifyContent: 'center',
   },
-  watchSyncTitle: {
+  refreshEmoji: {
     fontSize: 16,
-    fontWeight: 'bold',
-    color: '#34c759',
   },
-  watchSyncTitleOffline: {
-    fontSize: 15,
-    fontWeight: 'bold',
-    color: '#a0a5b5',
+  welcomeSection: {
+    marginVertical: 18,
   },
-  watchStatusBadge: {
+  progressSubtitle: {
+    fontSize: 11,
+    fontWeight: 'bold',
+    color: '#9CA3AF',
+    letterSpacing: 1,
+  },
+  welcomeTitle: {
+    fontSize: 26,
+    fontWeight: 'bold',
+    color: '#111827',
+    marginTop: 6,
+  },
+  mainCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    padding: 24,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.04,
+    shadowRadius: 12,
+    elevation: 3,
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  dailyGoalLabel: {
+    fontSize: 14,
+    color: '#6B7280',
+    fontWeight: '600',
+  },
+  dailyGoalValue: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginTop: 8,
+  },
+  greenText: {
+    color: '#24C76D',
+  },
+  greyText: {
+    color: '#111827',
+  },
+  leftCaloriesBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(52, 199, 89, 0.15)',
+    backgroundColor: '#F3F4F6',
     borderRadius: 12,
     paddingVertical: 4,
-    paddingHorizontal: 8,
-    borderWidth: 1,
-    borderColor: 'rgba(52, 199, 89, 0.3)',
+    paddingHorizontal: 12,
+    marginTop: 10,
   },
-  activeDot: {
+  greenDot: {
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: '#34c759',
+    backgroundColor: '#24C76D',
     marginRight: 6,
   },
-  watchStatusText: {
-    fontSize: 11,
+  leftCaloriesText: {
+    fontSize: 12,
+    color: '#374151',
     fontWeight: 'bold',
-    color: '#34c759',
+  },
+  ringOuter: {
+    width: 146,
+    height: 146,
+    borderRadius: 73,
+    backgroundColor: '#F3F4F6',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 22,
+  },
+  ringQuadrantBorder: {
+    width: 146,
+    height: 146,
+    borderRadius: 73,
+    borderWidth: 10,
+    borderColor: '#E5E7EB',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  ringInner: {
+    width: 126,
+    height: 126,
+    borderRadius: 63,
+    backgroundColor: '#FFFFFF',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  ringPercentage: {
+    fontSize: 26,
+    fontWeight: 'bold',
+    color: '#111827',
+  },
+  ringSubLabel: {
+    fontSize: 11,
+    color: '#9CA3AF',
+    fontWeight: '600',
+    marginTop: 2,
     textTransform: 'uppercase',
   },
-  watchMetricsRow: {
+  metricsRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-  },
-  watchMetricBox: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(19, 20, 25, 0.6)',
-    borderRadius: 12,
-    padding: 14,
-    marginHorizontal: 4,
-    borderWidth: 1,
-    borderColor: 'rgba(44, 46, 58, 0.5)',
-  },
-  watchEmoji: {
-    fontSize: 22,
-    marginRight: 10,
-  },
-  watchMetricValue: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#ffffff',
-  },
-  watchMetricLabel: {
-    fontSize: 10,
-    color: '#a0a5b5',
-    marginTop: 2,
-  },
-  watchSyncOfflineDesc: {
-    fontSize: 12,
-    color: '#6c7281',
-    lineHeight: 18,
-  },
-  connectWatchButton: {
-    backgroundColor: 'rgba(74, 144, 226, 0.15)',
-    borderRadius: 8,
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderWidth: 1,
-    borderColor: 'rgba(74, 144, 226, 0.3)',
-  },
-  connectWatchButtonText: {
-    fontSize: 11,
-    fontWeight: 'bold',
-    color: '#4a90e2',
-  },
-  dashboardStatsGrid: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 10,
     marginBottom: 20,
   },
-  statMiniCard: {
+  metricCard: {
     flex: 1,
-    backgroundColor: '#1e2029',
-    borderRadius: 12,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
     padding: 16,
-    marginHorizontal: 5,
-    borderWidth: 1,
-    borderColor: '#2c2e3a',
+    marginHorizontal: 6,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.04,
+    shadowRadius: 12,
+    elevation: 3,
+  },
+  metricCardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 14,
+  },
+  iconContainer: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  metricEmoji: {
+    fontSize: 18,
+  },
+  metricChangeText: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: '#24C76D',
+  },
+  metricCardLabel: {
+    fontSize: 12,
+    color: '#6B7280',
+    fontWeight: '600',
+  },
+  metricCardValue: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#111827',
+    marginTop: 6,
+    marginBottom: 12,
+  },
+  metricUnitText: {
+    fontSize: 12,
+    color: '#9CA3AF',
+    fontWeight: 'normal',
+  },
+  progressBarTrack: {
+    height: 6,
+    backgroundColor: '#F3F4F6',
+    borderRadius: 3,
+    overflow: 'hidden',
+  },
+  progressBarFillGreen: {
+    height: '100%',
+    backgroundColor: '#24C76D',
+    borderRadius: 3,
+  },
+  progressBarFillBlue: {
+    height: '100%',
+    backgroundColor: '#3B82F6',
+    borderRadius: 3,
+  },
+  nutritionCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    padding: 20,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.04,
+    shadowRadius: 12,
+    elevation: 3,
+    marginBottom: 24,
+  },
+  nutritionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  nutritionTitleGroup: {
+    flexDirection: 'row',
     alignItems: 'center',
   },
-  statMiniTitle: {
-    fontSize: 10,
-    color: '#a0a5b5',
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
+  nutritionForkKnife: {
+    fontSize: 18,
   },
-  statMiniValue: {
+  nutritionTitle: {
     fontSize: 15,
     fontWeight: 'bold',
-    color: '#ffffff',
+    color: '#111827',
+    marginLeft: 8,
+  },
+  viewDetailsText: {
+    fontSize: 13,
+    color: '#24C76D',
+    fontWeight: 'bold',
+  },
+  nutritionBarsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'flex-end',
     marginTop: 6,
+  },
+  nutritionBarColumn: {
+    alignItems: 'center',
+    width: 80,
+  },
+  barOuterTrack: {
+    width: 48,
+    height: 120,
+    backgroundColor: '#F3F4F6',
+    borderRadius: 8,
+    overflow: 'hidden',
+    justifyContent: 'flex-end',
+    marginBottom: 12,
+  },
+  barFillGreen: {
+    width: '100%',
+    backgroundColor: '#24C76D',
+    borderRadius: 8,
+  },
+  barFillBlue: {
+    width: '100%',
+    backgroundColor: '#3B82F6',
+    borderRadius: 8,
+  },
+  barFillRed: {
+    width: '100%',
+    backgroundColor: '#FF6E5B',
+    borderRadius: 8,
+  },
+  macroLabel: {
+    fontSize: 9,
+    fontWeight: 'bold',
+    color: '#9CA3AF',
+    letterSpacing: 0.5,
+  },
+  macroValue: {
+    fontSize: 13,
+    fontWeight: 'bold',
+    color: '#111827',
+    marginTop: 4,
+  },
+  macroIndicatorLineGreen: {
+    width: 32,
+    height: 3,
+    backgroundColor: '#24C76D',
+    borderRadius: 1.5,
+    marginTop: 6,
+  },
+  macroIndicatorLineBlue: {
+    width: 32,
+    height: 3,
+    backgroundColor: '#3B82F6',
+    borderRadius: 1.5,
+    marginTop: 6,
+  },
+  macroIndicatorLineRed: {
+    width: 32,
+    height: 3,
+    backgroundColor: '#FF6E5B',
+    borderRadius: 1.5,
+    marginTop: 6,
+  },
+  recentActivitySection: {
+    marginBottom: 20,
+  },
+  activityHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 14,
+  },
+  activityTitle: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: '#9CA3AF',
+    letterSpacing: 1,
+  },
+  moreIcon: {
+    fontSize: 16,
+    color: '#9CA3AF',
+    fontWeight: 'bold',
+  },
+  activityRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    padding: 14,
+    marginBottom: 10,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.03,
+    shadowRadius: 10,
+    elevation: 2,
+  },
+  activityIconBadge: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  activityBadgeText: {
+    fontSize: 20,
+  },
+  activityMeta: {
+    flex: 1,
+    marginLeft: 14,
+  },
+  activityName: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#111827',
+  },
+  activityTime: {
+    fontSize: 11,
+    color: '#9CA3AF',
+    marginTop: 3,
+  },
+  activityMetricsRight: {
+    alignItems: 'flex-end',
+  },
+  activityCalBurn: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#111827',
+  },
+  activitySubText: {
+    fontSize: 11,
+    fontWeight: 'bold',
+    marginTop: 3,
   },
 });
 

@@ -184,6 +184,7 @@ const HomeScreen = ({ route, navigation }: { route: any; navigation: any }) => {
               style={styles.tabBarIcon}
               resizeMode="contain"
             />
+            <Text style={[styles.tabBarLabel, activeTab === 'dashboard' ? styles.tabBarLabelActive : styles.tabBarLabelInactive]}>Home</Text>
           </Animated.View>
         </TouchableOpacity>
 
@@ -194,6 +195,7 @@ const HomeScreen = ({ route, navigation }: { route: any; navigation: any }) => {
               style={styles.tabBarIcon}
               resizeMode="contain"
             />
+            <Text style={[styles.tabBarLabel, activeTab === 'data' ? styles.tabBarLabelActive : styles.tabBarLabelInactive]}>Activity</Text>
           </Animated.View>
         </TouchableOpacity>
 
@@ -204,6 +206,7 @@ const HomeScreen = ({ route, navigation }: { route: any; navigation: any }) => {
               style={styles.tabBarIcon}
               resizeMode="contain"
             />
+            <Text style={[styles.tabBarLabel, activeTab === 'mealplan' ? styles.tabBarLabelActive : styles.tabBarLabelInactive]}>Meals</Text>
           </Animated.View>
         </TouchableOpacity>
 
@@ -214,6 +217,7 @@ const HomeScreen = ({ route, navigation }: { route: any; navigation: any }) => {
               style={styles.tabBarIcon}
               resizeMode="contain"
             />
+            <Text style={[styles.tabBarLabel, activeTab === 'exercise' ? styles.tabBarLabelActive : styles.tabBarLabelInactive]}>Workout</Text>
           </Animated.View>
         </TouchableOpacity>
 
@@ -224,6 +228,7 @@ const HomeScreen = ({ route, navigation }: { route: any; navigation: any }) => {
               style={styles.tabBarIcon}
               resizeMode="contain"
             />
+            <Text style={[styles.tabBarLabel, activeTab === 'profile' ? styles.tabBarLabelActive : styles.tabBarLabelInactive]}>Profile</Text>
           </Animated.View>
         </TouchableOpacity>
       </View>
@@ -234,7 +239,7 @@ const HomeScreen = ({ route, navigation }: { route: any; navigation: any }) => {
 const styles = StyleSheet.create({
   mainContainer: {
     flex: 1,
-    backgroundColor: '#131419',
+    backgroundColor: '#F8F9FA',
   },
   scrollContainer: {
     flex: 1,
@@ -247,22 +252,22 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-around',
     alignItems: 'center',
-    backgroundColor: 'rgba(30, 32, 41, 0.96)',
+    backgroundColor: '#FFFFFF',
     borderTopWidth: 1,
-    borderColor: '#22242e',
+    borderColor: '#F3F4F6',
     position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
-    paddingVertical: Platform.OS === 'ios' ? 14 : 12,
-    paddingBottom: Platform.OS === 'ios' ? 28 : 14,
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
+    paddingVertical: Platform.OS === 'ios' ? 10 : 8,
+    paddingBottom: Platform.OS === 'ios' ? 24 : 10,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
     shadowColor: '#000000',
     shadowOffset: { width: 0, height: -4 },
-    shadowOpacity: 0.2,
+    shadowOpacity: 0.05,
     shadowRadius: 10,
-    elevation: 10,
+    elevation: 8,
   },
   tabBarButton: {
     alignItems: 'center',
@@ -270,21 +275,31 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   iconWrapper: {
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 20,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 16,
     backgroundColor: 'transparent',
     alignItems: 'center',
     justifyContent: 'center',
+    minWidth: 70,
   },
   iconWrapperActive: {
-    backgroundColor: 'rgba(52, 199, 89, 0.15)',
-    borderWidth: 1,
-    borderColor: 'rgba(52, 199, 89, 0.3)',
+    backgroundColor: 'rgba(36, 199, 109, 0.1)',
   },
   tabBarIcon: {
-    width: 28,
-    height: 28,
+    width: 24,
+    height: 24,
+  },
+  tabBarLabel: {
+    fontSize: 10,
+    fontWeight: '600',
+    marginTop: 4,
+  },
+  tabBarLabelActive: {
+    color: '#24C76D',
+  },
+  tabBarLabelInactive: {
+    color: '#9CA3AF',
   },
 });
 

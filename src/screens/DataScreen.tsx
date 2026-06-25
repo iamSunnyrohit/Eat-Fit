@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, ActivityIndicator, Alert, Platform } from 'react-native';
-import * as ImagePicker from 'expo-image-picker';
+import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 
 interface DataScreenProps {
   steps: number;
@@ -9,172 +8,267 @@ interface DataScreenProps {
   setConsumedCalories: React.Dispatch<React.SetStateAction<number>>;
 }
 
-// AI Scanner Food Database for simulation
-const MOCK_MEAL_DATABASE = [
-  {
-    name: 'Avocado Toast with Egg 🥑🍳',
-    calories: 340,
-    protein: 14,
-    fats: 18,
-    fiber: 6
-  },
-  {
-    name: 'Grilled Chicken Quinoa Bowl 🍗🥗',
-    calories: 520,
-    protein: 38,
-    fats: 12,
-    fiber: 7
-  },
-  {
-    name: 'Berry Oats with Honey 🥣🍓',
-    calories: 280,
-    protein: 8,
-    fats: 4,
-    fiber: 9
-  },
-  {
-    name: 'Baked Salmon with Broccoli 🥩🥦',
-    calories: 450,
-    protein: 32,
-    fats: 22,
-    fiber: 5
-  }
-];
-
 const DataScreen: React.FC<DataScreenProps> = ({
   steps,
   activeCalories,
   consumedCalories,
   setConsumedCalories,
 }) => {
-  const [scanning, setScanning] = useState(false);
-  const [scannedImage, setScannedImage] = useState<string | null>(null);
-  const [scanResult, setScanResult] = useState<any>(null);
+  // Navigation active tab: 'calories' | 'minutes'
+  const [activityMode, setActivityMode] = useState<'calories' | 'minutes'>('calories');
 
-  // Helper to handle camera/library selection and simulate AI scanner
-  const handleImageSource = async (useCamera = false) => {
-    let result;
-    try {
-      const options: ImagePicker.ImagePickerOptions = {
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: true,
-        aspect: [4, 3],
-        quality: 0.8,
-      };
+  // Chart width state dynamically calculated via onLayout
+  const [chartWidth, setChartWidth] = useState(300);
 
-      if (useCamera) {
-        result = await ImagePicker.launchCameraAsync(options);
-      } else {
-        result = await ImagePicker.launchImageLibraryAsync(options);
-      }
+  // Dynamic values depending on activityMode and native HealthKit activeCalories sync
+  const dataValues = activityMode === 'calories'
+    ? [180, 290, 260, activeCalories > 0 ? activeCalories : 642, 530, 220, 580]
+    : [25, 45, 35, activeCalories > 0 ? Math.round(activeCalories / 7.1) : 90, 75, 30, 80];
 
-      if (!result.canceled && result.assets && result.assets.length > 0) {
-        const imageUri = result.assets[0].uri;
-        setScannedImage(imageUri);
-        setScanResult(null);
-        setScanning(true);
+  // Map vector line chart coordinates
+  const chartHeight = 120;
+  const chartBottomPadding = 20;
+  const chartPadding = 16;
+  const minVal = 0;
+  const maxVal = Math.max(...dataValues) * 1.15; // 15% top padding headroom
+  const availableWidth = chartWidth - chartPadding * 2;
 
-        // Simulate AI Server processing delay
-        setTimeout(() => {
-          setScanning(false);
-          // Pick a random food item from mock database
-          const randomFood = MOCK_MEAL_DATABASE[Math.floor(Math.random() * MOCK_MEAL_DATABASE.length)];
-          setScanResult(randomFood);
-        }, 2200);
-      }
-    } catch (error) {
-      console.error('Image picking error:', error);
-      Alert.alert('Scan Error', 'Unable to access photos/camera. Please try again.');
-    }
-  };
+  const points = dataValues.map((val, idx) => {
+    const x = chartPadding + (availableWidth / 6) * idx;
+    const y = chartHeight - ((val - minVal) / (maxVal - minVal)) * (chartHeight - chartBottomPadding);
+    return { x, y, val };
+  });
 
-  const addScannedCalories = () => {
-    if (scanResult) {
-      setConsumedCalories(prev => prev + scanResult.calories);
-      Alert.alert('Added! 🍏', `${scanResult.name} (${scanResult.calories} kcal) added to daily consumed tracker.`);
-      setScannedImage(null);
-      setScanResult(null);
-    }
-  };
+  // Calculate dynamic vector segments center-to-center
+  const segments = [];
+  for (let i = 0; i < points.length - 1; i++) {
+    const p1 = points[i];
+    const p2 = points[i + 1];
+
+    const dx = p2.x - p1.x;
+    const dy = p2.y - p1.y;
+    const distance = Math.sqrt(dx * dx + dy * dy);
+    const angle = Math.atan2(dy, dx);
+
+    const cx = (p1.x + p2.x) / 2 - distance / 2;
+    const cy = (p1.y + p2.y) / 2 - 3.5 / 2; // Thickness correction
+
+    segments.push(
+      <View
+        key={`seg-${i}`}
+        style={{
+          position: 'absolute',
+          left: cx,
+          top: cy,
+          width: distance,
+          height: 3.5,
+          backgroundColor: '#24C76D',
+          borderRadius: 2,
+          transform: [{ rotate: `${angle}rad` }],
+        }}
+      />
+    );
+  }
+
+  const peakPoint = points[3];
+  const tooltipText = activityMode === 'calories'
+    ? `${Math.round(peakPoint.val)} kcal`
+    : `${Math.round(peakPoint.val)} min`;
 
   return (
     <View style={styles.tabContentContainer}>
-      <View style={styles.header}>
-        <View>
-          <Text style={styles.greeting}>AI Scanner & Logging 📷</Text>
-          <Text style={styles.subtitle}>Log nutrients using your camera or track hydration</Text>
+      {/* Top Bar matching design */}
+      <View style={styles.topBar}>
+        <View style={styles.topBarLeft}>
+          <View style={styles.avatarContainer}>
+            <Image
+              source={{ uri: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80' }}
+              style={styles.avatarImage}
+            />
+          </View>
+          <Text style={styles.appName}>Eat & Fit</Text>
+        </View>
+        <TouchableOpacity style={styles.refreshButton}>
+          <Text style={styles.refreshEmoji}>🔄</Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* Title section */}
+      <View style={styles.titleSection}>
+        <Text style={styles.weeklyProgressTitle}>Weekly Progress</Text>
+        <View style={styles.weekTagContainer}>
+          <Text style={styles.weekTagText}>WEEK 42</Text>
         </View>
       </View>
 
-      {/* Scanner content */}
-      <View style={styles.scannerContainer}>
-        <View style={styles.scannerButtons}>
-          <TouchableOpacity style={styles.scanButton} onPress={() => handleImageSource(true)}>
-            <Text style={styles.scanButtonText}>Take Photo 📷</Text>
-          </TouchableOpacity>
-          <TouchableOpacity 
-            style={[styles.scanButton, { backgroundColor: '#1e2029', borderColor: '#2c2e3a' }]} 
-            onPress={() => handleImageSource(false)}
-          >
-            <Text style={[styles.scanButtonText, { color: '#ffffff' }]}>Upload Image 🖼️</Text>
+      {/* Calories / Minutes toggle selector pill */}
+      <View style={styles.toggleContainer}>
+        <TouchableOpacity 
+          style={[styles.toggleButton, activityMode === 'calories' && styles.toggleButtonActive]}
+          onPress={() => setActivityMode('calories')}
+        >
+          <Text style={[styles.toggleText, activityMode === 'calories' && styles.toggleTextActive]}>
+            Calories
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity 
+          style={[styles.toggleButton, activityMode === 'minutes' && styles.toggleButtonActive]}
+          onPress={() => setActivityMode('minutes')}
+        >
+          <Text style={[styles.toggleText, activityMode === 'minutes' && styles.toggleTextActive]}>
+            Minutes
+          </Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* Main Dotted Grid Line Graph Card */}
+      <View style={styles.chartCard}>
+        <View 
+          style={styles.chartArea}
+          onLayout={(e) => setChartWidth(e.nativeEvent.layout.width)}
+        >
+          {/* Horizontal dotted grid tracks */}
+          <View style={[styles.gridTrack, { top: 20 }]} />
+          <View style={[styles.gridTrack, { top: 70 }]} />
+          <View style={[styles.gridTrack, { top: 120 }]} />
+
+          {/* Render connecting line segments */}
+          {chartWidth > 0 && segments}
+
+          {/* Render vertex dots */}
+          {chartWidth > 0 && points.map((p, idx) => {
+            const isPeak = idx === 3;
+            return (
+              <View
+                key={`dot-${idx}`}
+                style={{
+                  position: 'absolute',
+                  left: p.x - (isPeak ? 6 : 4),
+                  top: p.y - (isPeak ? 6 : 4),
+                  width: isPeak ? 12 : 8,
+                  height: isPeak ? 12 : 8,
+                  borderRadius: isPeak ? 6 : 4,
+                  backgroundColor: isPeak ? '#FFFFFF' : '#24C76D',
+                  borderWidth: isPeak ? 3 : 0,
+                  borderColor: '#24C76D',
+                  zIndex: 10,
+                }}
+              />
+            );
+          })}
+
+          {/* Highlighted Tooltip over peak */}
+          {chartWidth > 0 && (
+            <View
+              style={{
+                position: 'absolute',
+                left: peakPoint.x - 45,
+                top: peakPoint.y - 42,
+                width: 90,
+                backgroundColor: '#FFFFFF',
+                borderRadius: 8,
+                paddingVertical: 5,
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderWidth: 1.5,
+                borderColor: '#24C76D',
+                shadowColor: '#000000',
+                shadowOffset: { width: 0, height: 4 },
+                shadowOpacity: 0.08,
+                shadowRadius: 6,
+                elevation: 3,
+                zIndex: 20,
+              }}
+            >
+              <Text style={{ fontSize: 11, fontWeight: 'bold', color: '#24C76D' }}>
+                {tooltipText}
+              </Text>
+            </View>
+          )}
+        </View>
+
+        {/* Bottom Weekdays Axis */}
+        <View style={styles.daysLabelsRow}>
+          {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day) => (
+            <Text key={day} style={styles.dayLabelText}>{day}</Text>
+          ))}
+        </View>
+      </View>
+
+      {/* Summary metrics dual-column progress rows */}
+      <View style={styles.metricsRow}>
+        <View style={styles.metricCard}>
+          <Text style={styles.metricLabel}>Avg Daily Burn</Text>
+          <Text style={styles.metricValue}>
+            {activityMode === 'calories' ? '542 kcal' : '46 min'}
+          </Text>
+          <View style={styles.barTrack}>
+            <View style={[styles.barFillGreen, { width: '75%' }]} />
+          </View>
+        </View>
+
+        <View style={styles.metricCard}>
+          <Text style={styles.metricLabel}>Total Training</Text>
+          <Text style={[styles.metricValue, { color: '#3B82F6' }]}>
+            {activityMode === 'calories' ? '324 min' : '210 min'}
+          </Text>
+          <View style={styles.barTrack}>
+            <View style={[styles.barFillBlue, { width: '60%' }]} />
+          </View>
+        </View>
+      </View>
+
+      {/* Recent Activity logs */}
+      <View style={styles.recentLogsSection}>
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>Recent Logs</Text>
+          <TouchableOpacity>
+            <Text style={styles.viewAllText}>View All</Text>
           </TouchableOpacity>
         </View>
 
-        {scannedImage && (
-          <View style={styles.previewCard}>
-            <Image source={{ uri: scannedImage }} style={styles.previewImage} resizeMode="cover" />
-
-            {scanning && (
-              <View style={styles.loadingOverlay}>
-                <ActivityIndicator size="large" color="#34c759" />
-                <Text style={styles.loadingText}>AI identifying ingredients...</Text>
-              </View>
-            )}
-
-            {scanResult && (
-              <View style={styles.resultDetails}>
-                <Text style={styles.resultHeader}>Meal Identified!</Text>
-                <Text style={styles.foodName}>{scanResult.name}</Text>
-
-                <View style={styles.macroRow}>
-                  <View style={styles.macroBox}>
-                    <Text style={styles.macroVal}>{scanResult.calories}</Text>
-                    <Text style={styles.macroKey}>kcal</Text>
-                  </View>
-                  <View style={styles.macroBox}>
-                    <Text style={styles.macroVal}>{scanResult.protein}g</Text>
-                    <Text style={styles.macroKey}>protein</Text>
-                  </View>
-                  <View style={styles.macroBox}>
-                    <Text style={styles.macroVal}>{scanResult.fats}g</Text>
-                    <Text style={styles.macroKey}>fats</Text>
-                  </View>
-                  <View style={styles.macroBox}>
-                    <Text style={styles.macroVal}>{scanResult.fiber}g</Text>
-                    <Text style={styles.macroKey}>fiber</Text>
-                  </View>
-                </View>
-
-                <TouchableOpacity style={styles.addButton} onPress={addScannedCalories}>
-                  <Text style={styles.addButtonText}>Add to Daily Calories ＋</Text>
-                </TouchableOpacity>
-              </View>
-            )}
+        {/* Log item 1 */}
+        <View style={styles.logCard}>
+          <View style={[styles.logIconWrapper, { backgroundColor: '#E8FDF0' }]}>
+            <Text style={styles.logEmoji}>🏋️‍♂️</Text>
           </View>
-        )}
-      </View>
-
-      {/* Steps & Energy Burn Overview section in Data */}
-      <View style={[styles.progressCard, { marginTop: 24 }]}>
-        <Text style={styles.progressTitle}>Today's Activity Log</Text>
-        <View style={styles.activityStatsRow}>
-          <View style={styles.activityStatItem}>
-            <Text style={styles.activityStatNum}>{steps.toLocaleString()}</Text>
-            <Text style={styles.activityStatLabel}>Total Steps Walked</Text>
+          <View style={styles.logDetails}>
+            <Text style={styles.logTitle}>Functional Training</Text>
+            <Text style={styles.logSubtitle}>45 min • Today, 08:30 AM</Text>
           </View>
-          <View style={styles.activityStatItem}>
-            <Text style={styles.activityStatNum}>{activeCalories} kcal</Text>
-            <Text style={styles.activityStatLabel}>Watch Calories Burned</Text>
+          <View style={styles.logRight}>
+            <Text style={styles.logMetricValue}>480 kcal</Text>
+            <Text style={styles.logSubIcon}>⌚</Text>
+          </View>
+        </View>
+
+        {/* Log item 2 */}
+        <View style={styles.logCard}>
+          <View style={[styles.logIconWrapper, { backgroundColor: '#EEF2FF' }]}>
+            <Text style={styles.logEmoji}>🏃‍♂️</Text>
+          </View>
+          <View style={styles.logDetails}>
+            <Text style={styles.logTitle}>Morning Trail Run</Text>
+            <Text style={styles.logSubtitle}>32 min • Yesterday</Text>
+          </View>
+          <View style={styles.logRight}>
+            <Text style={styles.logMetricValue}>320 kcal</Text>
+            <Text style={styles.logSubIcon}>❤️</Text>
+          </View>
+        </View>
+
+        {/* Log item 3 */}
+        <View style={styles.logCard}>
+          <View style={[styles.logIconWrapper, { backgroundColor: '#FFEBE8' }]}>
+            <Text style={styles.logEmoji}>🥗</Text>
+          </View>
+          <View style={styles.logDetails}>
+            <Text style={styles.logTitle}>Active Recovery</Text>
+            <Text style={styles.logSubtitle}>20 min • Oct 21</Text>
+          </View>
+          <View style={styles.logRight}>
+            <Text style={styles.logMetricValue}>120 kcal</Text>
+            <Text style={styles.logSubIcon}>🔁</Text>
           </View>
         </View>
       </View>
@@ -186,164 +280,240 @@ const styles = StyleSheet.create({
   tabContentContainer: {
     flex: 1,
   },
-  header: {
-    marginTop: 40,
-    marginBottom: 20,
+  topBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 10,
+    marginTop: 10,
   },
-  greeting: {
-    fontSize: 24,
+  topBarLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  avatarContainer: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    overflow: 'hidden',
+    backgroundColor: '#E5E7EB',
+  },
+  avatarImage: {
+    width: '100%',
+    height: '100%',
+  },
+  appName: {
+    fontSize: 20,
     fontWeight: 'bold',
-    color: '#ffffff',
+    color: '#24C76D',
+    marginLeft: 12,
   },
-  subtitle: {
-    fontSize: 12,
-    color: '#34c759',
-    marginTop: 4,
-    fontWeight: '500',
+  refreshButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: '#F3F4F6',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  scannerContainer: {
-    backgroundColor: '#1e2029',
-    borderRadius: 16,
-    padding: 20,
-    borderWidth: 1,
-    borderColor: '#2c2e3a',
+  refreshEmoji: {
+    fontSize: 16,
   },
-  scannerButtons: {
+  titleSection: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-  },
-  scanButton: {
-    flex: 1,
-    backgroundColor: '#34c759',
-    paddingVertical: 12,
-    borderRadius: 10,
     alignItems: 'center',
-    marginHorizontal: 4,
-    borderWidth: 1,
-    borderColor: 'transparent',
+    marginVertical: 18,
   },
-  scanButtonText: {
-    color: '#ffffff',
-    fontSize: 14,
+  weeklyProgressTitle: {
+    fontSize: 24,
     fontWeight: 'bold',
+    color: '#111827',
   },
-  previewCard: {
-    marginTop: 16,
-    borderRadius: 12,
-    overflow: 'hidden',
-    backgroundColor: '#131419',
-    borderWidth: 1,
-    borderColor: '#2c2e3a',
+  weekTagContainer: {
+    backgroundColor: 'rgba(36, 199, 109, 0.1)',
+    paddingVertical: 4,
+    paddingHorizontal: 10,
+    borderRadius: 8,
+  },
+  weekTagText: {
+    fontSize: 11,
+    fontWeight: 'bold',
+    color: '#24C76D',
+    letterSpacing: 0.5,
+  },
+  toggleContainer: {
+    flexDirection: 'row',
+    backgroundColor: '#F3F4F6',
+    borderRadius: 14,
+    padding: 4,
+    marginBottom: 20,
+  },
+  toggleButton: {
+    flex: 1,
+    paddingVertical: 10,
+    alignItems: 'center',
+    borderRadius: 10,
+  },
+  toggleButtonActive: {
+    backgroundColor: '#24C76D',
+  },
+  toggleText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#6B7280',
+  },
+  toggleTextActive: {
+    color: '#FFFFFF',
+  },
+  chartCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    padding: 20,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.04,
+    shadowRadius: 12,
+    elevation: 3,
+    marginBottom: 20,
+  },
+  chartArea: {
+    height: 140,
     position: 'relative',
   },
-  previewImage: {
-    width: '100%',
-    height: 300,
-  },
-  loadingOverlay: {
+  gridTrack: {
     position: 'absolute',
     left: 0,
     right: 0,
-    top: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(19, 20, 25, 0.85)',
-    justifyContent: 'center',
-    alignItems: 'center',
+    borderTopWidth: 1,
+    borderColor: '#F3F4F6',
+    borderStyle: 'dashed',
   },
-  loadingText: {
-    color: '#ffffff',
-    fontSize: 14,
-    fontWeight: 'bold',
-    marginTop: 12,
-  },
-  resultDetails: {
-    padding: 16,
-  },
-  resultHeader: {
-    fontSize: 12,
-    fontWeight: 'bold',
-    color: '#34c759',
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-  },
-  foodName: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#ffffff',
-    marginTop: 4,
-    marginBottom: 14,
-  },
-  macroRow: {
+  daysLabelsRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 16,
+    paddingHorizontal: 10,
+    marginTop: 14,
   },
-  macroBox: {
-    flex: 1,
-    backgroundColor: '#1e2029',
-    borderRadius: 8,
-    paddingVertical: 10,
-    paddingHorizontal: 4,
-    alignItems: 'center',
-    marginHorizontal: 3,
-    borderWidth: 1,
-    borderColor: '#2c2e3a',
+  dayLabelText: {
+    fontSize: 12,
+    color: '#9CA3AF',
+    fontWeight: '600',
+    width: 32,
+    textAlign: 'center',
   },
-  macroVal: {
-    fontSize: 15,
-    fontWeight: 'bold',
-    color: '#ffffff',
-  },
-  macroKey: {
-    fontSize: 10,
-    color: '#a0a5b5',
-    marginTop: 2,
-    textTransform: 'capitalize',
-  },
-  addButton: {
-    backgroundColor: '#4a90e2',
-    paddingVertical: 12,
-    borderRadius: 10,
-    alignItems: 'center',
-  },
-  addButtonText: {
-    color: '#ffffff',
-    fontSize: 14,
-    fontWeight: 'bold',
-  },
-  progressCard: {
-    backgroundColor: '#1e2029',
-    borderRadius: 16,
-    padding: 24,
-    borderWidth: 1,
-    borderColor: '#2c2e3a',
+  metricsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     marginBottom: 24,
   },
-  progressTitle: {
+  metricCard: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    padding: 16,
+    marginHorizontal: 6,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.04,
+    shadowRadius: 12,
+    elevation: 3,
+  },
+  metricLabel: {
+    fontSize: 13,
+    color: '#6B7280',
+    fontWeight: '600',
+  },
+  metricValue: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#24C76D',
+    marginTop: 8,
+    marginBottom: 12,
+  },
+  barTrack: {
+    height: 6,
+    backgroundColor: '#F3F4F6',
+    borderRadius: 3,
+    overflow: 'hidden',
+  },
+  barFillGreen: {
+    height: '100%',
+    backgroundColor: '#24C76D',
+    borderRadius: 3,
+  },
+  barFillBlue: {
+    height: '100%',
+    backgroundColor: '#3B82F6',
+    borderRadius: 3,
+  },
+  recentLogsSection: {
+    marginBottom: 20,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 14,
+  },
+  sectionTitle: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#ffffff',
-    marginBottom: 16,
+    color: '#111827',
   },
-  activityStatsRow: {
+  viewAllText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#24C76D',
+  },
+  logCard: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginVertical: 10,
-  },
-  activityStatItem: {
     alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    padding: 14,
+    marginBottom: 10,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.03,
+    shadowRadius: 10,
+    elevation: 2,
+  },
+  logIconWrapper: {
+    width: 42,
+    height: 42,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  logEmoji: {
+    fontSize: 20,
+  },
+  logDetails: {
     flex: 1,
+    marginLeft: 14,
   },
-  activityStatNum: {
-    fontSize: 18,
+  logTitle: {
+    fontSize: 14,
     fontWeight: 'bold',
-    color: '#34c759',
+    color: '#111827',
   },
-  activityStatLabel: {
-    fontSize: 11,
-    color: '#a0a5b5',
+  logSubtitle: {
+    fontSize: 12,
+    color: '#9CA3AF',
+    marginTop: 3,
+  },
+  logRight: {
+    alignItems: 'flex-end',
+  },
+  logMetricValue: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#24C76D',
+  },
+  logSubIcon: {
+    fontSize: 12,
     marginTop: 4,
-    textAlign: 'center',
   },
 });
 

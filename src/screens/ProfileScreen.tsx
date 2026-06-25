@@ -37,7 +37,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({
             value={nickname}
             onChangeText={setNickname}
             placeholder="e.g. Alex"
-            placeholderTextColor="#6c7281"
+            placeholderTextColor="#9CA3AF"
           />
         </View>
 
@@ -47,12 +47,12 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({
             style={styles.profileInput}
             value={dailyCalorieTarget.toString()}
             onChangeText={(val) => {
-              const parsed = parseInt(val, 10);
-              setCalorieTarget(isNaN(parsed) ? 0 : parsed);
+               const parsed = parseInt(val, 10);
+               setCalorieTarget(isNaN(parsed) ? 0 : parsed);
             }}
             keyboardType="number-pad"
             placeholder="e.g. 2000"
-            placeholderTextColor="#6c7281"
+            placeholderTextColor="#9CA3AF"
           />
         </View>
 
@@ -64,9 +64,9 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({
             </Text>
           </View>
           <Switch
-            trackColor={{ false: '#2c2e3a', true: '#34c759' }}
-            thumbColor={syncHealthDevices ? '#ffffff' : '#a0a5b5'}
-            ios_backgroundColor="#2c2e3a"
+            trackColor={{ false: '#E5E7EB', true: '#24C76D' }}
+            thumbColor={syncHealthDevices ? '#ffffff' : '#F3F4F6'}
+            ios_backgroundColor="#E5E7EB"
             onValueChange={handleProfileSyncToggle}
             value={syncHealthDevices}
           />
@@ -91,20 +91,23 @@ const styles = StyleSheet.create({
   greeting: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#ffffff',
+    color: '#111827',
   },
   subtitle: {
     fontSize: 12,
-    color: '#34c759',
+    color: '#24C76D',
     marginTop: 4,
-    fontWeight: '500',
+    fontWeight: '600',
   },
   profileFormCard: {
-    backgroundColor: '#1e2029',
-    borderRadius: 16,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
     padding: 20,
-    borderWidth: 1,
-    borderColor: '#2c2e3a',
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.04,
+    shadowRadius: 12,
+    elevation: 3,
     marginTop: 10,
     marginBottom: 20,
   },
@@ -114,43 +117,43 @@ const styles = StyleSheet.create({
   inputLabel: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#ffffff',
+    color: '#374151',
     marginBottom: 8,
   },
   profileInput: {
-    backgroundColor: '#131419',
+    backgroundColor: '#F9FAFB',
     borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 12,
-    color: '#ffffff',
+    color: '#111827',
     fontSize: 15,
     borderWidth: 1,
-    borderColor: '#2c2e3a',
+    borderColor: '#E5E7EB',
   },
   profileSwitchGroup: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#131419',
+    backgroundColor: '#F9FAFB',
     borderRadius: 12,
     padding: 14,
     marginTop: 10,
     borderWidth: 1,
-    borderColor: '#2c2e3a',
+    borderColor: '#E5E7EB',
   },
   switchTitle: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#ffffff',
+    color: '#111827',
   },
   switchDesc: {
     fontSize: 12,
-    color: '#a0a5b5',
+    color: '#6B7280',
     marginTop: 4,
     lineHeight: 16,
   },
   profileSaveButton: {
-    backgroundColor: '#34c759',
+    backgroundColor: '#24C76D',
     paddingVertical: 14,
     borderRadius: 12,
     alignItems: 'center',
