@@ -58,7 +58,10 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({
   // Navigation active sub-screens inside the Profile tab
   const [showPersonalInfo, setShowPersonalInfo] = useState(false);
   const [showSubscription, setShowSubscription] = useState(false);
+  const [showSecurity, setShowSecurity] = useState(false);
   const [googleSync, setGoogleSync] = useState(false);
+  const [twoFactorEnabled, setTwoFactorEnabled] = useState(true);
+  const [biometricsEnabled, setBiometricsEnabled] = useState(false);
 
   // Personal info fields
   const [fullName, setFullName] = useState(nickname || 'Alex Rivers');
@@ -128,7 +131,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({
             </View>
             <Text style={styles.subPlanNameText}>Annual Pro</Text>
             <Text style={styles.subPlanPriceText}>
-              $99.99 <Text style={styles.subPlanPeriodText}>/ year</Text>
+              ₹1,800 <Text style={styles.subPlanPeriodText}>/ year</Text>
             </Text>
             <View style={styles.subRenewalBox}>
               <Text style={styles.subRenewalLabel}>NEXT RENEWAL</Text>
@@ -220,6 +223,166 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({
             <View style={styles.subFooterLineFill} />
           </View>
           <Text style={styles.subFooterText}>Fueling your potential since 2021</Text>
+        </ScrollView>
+      </View>
+    );
+  }
+
+  // Render Sub-screen 3: Security management page
+  if (showSecurity) {
+    return (
+      <View style={styles.tabContentContainer}>
+        {/* Settings Header bar */}
+        <View style={styles.topBar}>
+          <TouchableOpacity style={styles.backButtonRow} onPress={() => setShowSecurity(false)}>
+            <Text style={styles.backArrow}>←</Text>
+            <Text style={styles.settingsHeaderTitleText}>Settings</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.refreshButton}>
+            <Text style={styles.optionsDots}>⋮</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Scrollable Security Details */}
+        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.formScrollContent}>
+          {/* Security Checkup Card */}
+          <View style={styles.securityCheckupCard}>
+            <View style={styles.securityHeaderRow}>
+              <Text style={styles.securityShieldIcon}>🛡️</Text>
+              <Text style={styles.securityCheckupTitle}>Security Checkup</Text>
+            </View>
+            <Text style={styles.securityCheckupDesc}>
+              Your account is secure. No issues found in the last 30 days.
+            </Text>
+            <TouchableOpacity style={styles.runDiagnosticsBtn} onPress={() => Alert.alert('Diagnostics', 'Running security diagnostics... System is secure.')}>
+              <Text style={styles.runDiagnosticsBtnText}>RUN DIAGNOSTICS</Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* Password Management Card */}
+          <View style={styles.securityWhiteCard}>
+            <View style={styles.securityCardMainRow}>
+              <View style={styles.securityIconWrapper}>
+                <Text style={styles.securityCardEmoji}>🔄</Text>
+              </View>
+              <View style={styles.securityCardMeta}>
+                <Text style={styles.securityCardTitle}>Password Management</Text>
+                <Text style={styles.securityCardSubtitle}>Last changed 4 months ago. Regularly updating helps protect your data.</Text>
+              </View>
+              <Text style={styles.securityChevron}>＞</Text>
+            </View>
+            <TouchableOpacity style={styles.changePasswordBtn} onPress={() => Alert.alert('Change Password', 'Password reset instructions have been sent to your email.')}>
+              <Text style={styles.changePasswordBtnText}>Change Password</Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* 2FA Card */}
+          <View style={styles.securityWhiteCard}>
+            <View style={styles.securityCardMainRow}>
+              <View style={styles.securityIconWrapper}>
+                <Text style={styles.securityCardEmoji}>📱</Text>
+              </View>
+              <View style={styles.securityCardMeta}>
+                <Text style={styles.securityCardTitle}>2FA</Text>
+                <Text style={styles.securityCardSubtitle}>Extra layer of security for your account.</Text>
+              </View>
+            </View>
+            <View style={styles.securityStatusRow}>
+              <Text style={[styles.securityStatusLabel, { color: twoFactorEnabled ? '#24C76D' : '#9CA3AF' }]}>
+                STATUS: {twoFactorEnabled ? 'ON' : 'OFF'}
+              </Text>
+              <Switch
+                value={twoFactorEnabled}
+                onValueChange={setTwoFactorEnabled}
+                trackColor={{ false: '#D1D5DB', true: '#24C76D' }}
+                thumbColor={twoFactorEnabled ? '#FFFFFF' : '#F3F4F6'}
+              />
+            </View>
+          </View>
+
+          {/* Biometrics Card */}
+          <View style={styles.securityWhiteCard}>
+            <View style={styles.securityCardMainRow}>
+              <View style={styles.securityIconWrapper}>
+                <Text style={styles.securityCardEmoji}>🧬</Text>
+              </View>
+              <View style={styles.securityCardMeta}>
+                <Text style={styles.securityCardTitle}>Biometrics</Text>
+                <Text style={styles.securityCardSubtitle}>Use Face ID or Touch ID to sign in.</Text>
+              </View>
+            </View>
+            <View style={styles.securityStatusRow}>
+              <Text style={[styles.securityStatusLabel, { color: biometricsEnabled ? '#24C76D' : '#9CA3AF' }]}>
+                {biometricsEnabled ? 'ENABLED' : 'DISABLED'}
+              </Text>
+              <Switch
+                value={biometricsEnabled}
+                onValueChange={setBiometricsEnabled}
+                trackColor={{ false: '#D1D5DB', true: '#24C76D' }}
+                thumbColor={biometricsEnabled ? '#FFFFFF' : '#F3F4F6'}
+              />
+            </View>
+          </View>
+
+          {/* Logged-in Devices Section */}
+          <View style={styles.devicesSection}>
+            <Text style={styles.devicesSectionTitle}>Logged-in Devices</Text>
+
+            {/* Device 1: MacBook Pro */}
+            <View style={styles.deviceItemCard}>
+              <View style={styles.deviceIconBox}>
+                <Text style={styles.deviceEmoji}>💻</Text>
+              </View>
+              <View style={styles.deviceMeta}>
+                <Text style={styles.deviceModelText}>MacBook Pro 16"</Text>
+                <Text style={styles.deviceLocationText}>Mumbai, India • Active Now</Text>
+              </View>
+              <TouchableOpacity onPress={() => Alert.alert('Log Out Device', 'Logged out of MacBook Pro 16".')}>
+                <Text style={styles.deviceLogOutText}>Log Out</Text>
+              </TouchableOpacity>
+            </View>
+
+            {/* Device 2: iPhone 15 Pro */}
+            <View style={styles.deviceItemCard}>
+              <View style={styles.deviceIconBox}>
+                <Text style={styles.deviceEmoji}>📱</Text>
+              </View>
+              <View style={styles.deviceMeta}>
+                <Text style={styles.deviceModelText}>iPhone 15 Pro</Text>
+                <Text style={styles.deviceLocationText}>New Delhi, India • 2 hours ago</Text>
+              </View>
+              <TouchableOpacity onPress={() => Alert.alert('Log Out Device', 'Logged out of iPhone 15 Pro.')}>
+                <Text style={styles.deviceLogOutText}>Log Out</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          {/* Image Banner */}
+          <View style={styles.securityImageContainer}>
+            <Image
+              source={require('../assets/security_banner.png')}
+              style={styles.securityBannerImage}
+              resizeMode="cover"
+            />
+            <View style={styles.securityImageOverlay}>
+              <Text style={styles.securityOverlayText}>Data Protection Protocol 4.2.0</Text>
+            </View>
+          </View>
+
+          {/* Delete Account Footer Section */}
+          <View style={styles.deleteAccountContainer}>
+            <Text style={styles.deleteAccountWarningText}>
+              Thinking of leaving Eat & Fit? This action is irreversible and all your training data will be permanently erased.
+            </Text>
+            <TouchableOpacity style={styles.deleteAccountBtn} onPress={() => {
+              Alert.alert('Delete Account', 'Are you sure you want to permanently delete your account? This action cannot be undone.', [
+                { text: 'Cancel', style: 'cancel' },
+                { text: 'Delete', style: 'destructive', onPress: () => Alert.alert('Account Deleted', 'Your account has been permanently removed.') }
+              ]);
+            }}>
+              <Text style={styles.deleteAccountBtnText}>DELETE ACCOUNT</Text>
+            </TouchableOpacity>
+          </View>
         </ScrollView>
       </View>
     );
@@ -517,7 +680,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({
         </TouchableOpacity>
 
         {/* Security */}
-        <TouchableOpacity style={styles.settingListItem}>
+        <TouchableOpacity style={styles.settingListItem} onPress={() => setShowSecurity(true)}>
           <View style={styles.settingIconWrapper}>
             <Text style={styles.settingEmoji}>🛡️</Text>
           </View>
@@ -1270,6 +1433,240 @@ const styles = StyleSheet.create({
     color: '#9CA3AF',
     textAlign: 'center',
     marginBottom: 20,
+    letterSpacing: 0.5,
+  },
+
+  // Security Sub-screen styles
+  securityCheckupCard: {
+    backgroundColor: '#24C76D',
+    borderRadius: 20,
+    padding: 24,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    elevation: 4,
+    marginBottom: 20,
+    marginTop: 10,
+  },
+  securityHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  securityShieldIcon: {
+    fontSize: 24,
+    marginRight: 10,
+  },
+  securityCheckupTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#0A4E2B',
+  },
+  securityCheckupDesc: {
+    fontSize: 14,
+    color: '#0A4E2B',
+    lineHeight: 20,
+    marginBottom: 16,
+    opacity: 0.9,
+  },
+  runDiagnosticsBtn: {
+    backgroundColor: '#0F733C',
+    borderRadius: 12,
+    paddingVertical: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  runDiagnosticsBtnText: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+    letterSpacing: 0.5,
+  },
+  securityWhiteCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    padding: 20,
+    marginBottom: 16,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.03,
+    shadowRadius: 10,
+    elevation: 2,
+  },
+  securityCardMainRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  securityIconWrapper: {
+    width: 44,
+    height: 44,
+    borderRadius: 12,
+    backgroundColor: '#E8FDF0',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  securityCardEmoji: {
+    fontSize: 20,
+  },
+  securityCardMeta: {
+    flex: 1,
+    marginLeft: 14,
+  },
+  securityCardTitle: {
+    fontSize: 15,
+    fontWeight: 'bold',
+    color: '#111827',
+  },
+  securityCardSubtitle: {
+    fontSize: 11,
+    color: '#6B7280',
+    lineHeight: 15,
+    marginTop: 4,
+  },
+  securityChevron: {
+    fontSize: 16,
+    color: '#9CA3AF',
+    marginLeft: 8,
+  },
+  changePasswordBtn: {
+    borderWidth: 1.5,
+    borderColor: '#E5E7EB',
+    borderRadius: 12,
+    paddingVertical: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 14,
+  },
+  changePasswordBtnText: {
+    fontSize: 13,
+    fontWeight: 'bold',
+    color: '#374151',
+  },
+  securityStatusRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: 14,
+    paddingTop: 14,
+    borderTopWidth: 1,
+    borderTopColor: '#F3F4F6',
+  },
+  securityStatusLabel: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    letterSpacing: 0.5,
+  },
+  devicesSection: {
+    marginTop: 10,
+    marginBottom: 20,
+  },
+  devicesSectionTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#0F733C',
+    marginBottom: 14,
+  },
+  deviceItemCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 12,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.03,
+    shadowRadius: 10,
+    elevation: 2,
+  },
+  deviceIconBox: {
+    width: 44,
+    height: 44,
+    borderRadius: 12,
+    backgroundColor: '#F3F4F6',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  deviceEmoji: {
+    fontSize: 20,
+  },
+  deviceMeta: {
+    flex: 1,
+    marginLeft: 14,
+  },
+  deviceModelText: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#111827',
+  },
+  deviceLocationText: {
+    fontSize: 12,
+    color: '#6B7280',
+    marginTop: 3,
+  },
+  deviceLogOutText: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: '#EF4444',
+    textDecorationLine: 'underline',
+    paddingHorizontal: 8,
+  },
+  securityImageContainer: {
+    height: 200,
+    borderRadius: 20,
+    overflow: 'hidden',
+    marginBottom: 24,
+    position: 'relative',
+  },
+  securityBannerImage: {
+    width: '100%',
+    height: '100%',
+  },
+  securityImageOverlay: {
+    position: 'absolute',
+    bottom: 16,
+    left: 16,
+    backgroundColor: 'rgba(255, 255, 255, 0.85)',
+    paddingVertical: 6,
+    paddingHorizontal: 14,
+    borderRadius: 20,
+  },
+  securityOverlayText: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: '#1F2937',
+  },
+  deleteAccountContainer: {
+    alignItems: 'center',
+    marginBottom: 40,
+    marginTop: 10,
+    paddingTop: 20,
+    borderTopWidth: 1,
+    borderTopColor: '#E5E7EB',
+  },
+  deleteAccountWarningText: {
+    fontSize: 11,
+    color: '#6B7280',
+    textAlign: 'center',
+    lineHeight: 16,
+    marginBottom: 16,
+    paddingHorizontal: 20,
+  },
+  deleteAccountBtn: {
+    borderWidth: 1.5,
+    borderColor: '#EF4444',
+    borderRadius: 12,
+    paddingVertical: 14,
+    paddingHorizontal: 24,
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  deleteAccountBtnText: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#EF4444',
     letterSpacing: 0.5,
   },
 });
