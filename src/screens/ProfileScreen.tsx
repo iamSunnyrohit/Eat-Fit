@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Switch, TouchableOpacity, Image, Alert } from 'react-native';
+import { View, Text, StyleSheet, Switch, TouchableOpacity, Image, TextInput, Alert, ScrollView } from 'react-native';
 
 interface ProfileScreenProps {
   nickname: string;
@@ -11,6 +11,41 @@ interface ProfileScreenProps {
   onSave: () => void;
 }
 
+// Custom Gestureless Slider Component
+const CustomSlider = ({ 
+  value, 
+  min, 
+  max, 
+  onChange 
+}: { 
+  value: number; 
+  min: number; 
+  max: number; 
+  onChange: (v: number) => void 
+}) => {
+  const [trackWidth, setTrackWidth] = useState(250);
+  const percentage = ((value - min) / (max - min)) * 100;
+
+  const handlePress = (evt: any) => {
+    const x = evt.nativeEvent.locationX;
+    const ratio = Math.max(0, Math.min(x / trackWidth, 1));
+    const val = Math.round(min + ratio * (max - min));
+    onChange(val);
+  };
+
+  return (
+    <View 
+      style={styles.sliderTrack} 
+      onLayout={(e) => setTrackWidth(e.nativeEvent.layout.width)}
+      onTouchStart={handlePress}
+      onTouchMove={handlePress}
+    >
+      <View style={[styles.sliderFill, { width: `${percentage}%` }]} />
+      <View style={[styles.sliderThumb, { left: `${percentage}%`, marginLeft: -8 }]} />
+    </View>
+  );
+};
+
 const ProfileScreen: React.FC<ProfileScreenProps> = ({
   nickname,
   setNickname,
@@ -20,7 +55,18 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({
   handleProfileSyncToggle,
   onSave,
 }) => {
+  // Navigation active state inside the Profile tab
+  const [showPersonalInfo, setShowPersonalInfo] = useState(false);
   const [googleSync, setGoogleSync] = useState(false);
+
+  // Personal info fields
+  const [fullName, setFullName] = useState(nickname || 'Alex Rivers');
+  const [email, setEmail] = useState('alex.rivers@example.com');
+  const [phone, setPhone] = useState('+1 (555) 000-0000');
+  const [dob, setDob] = useState('10/12/1995');
+  const [gender, setGender] = useState('Male');
+  const [height, setHeight] = useState(182); // cm
+  const [weight, setWeight] = useState(78); // kg
 
   const triggerSignOut = () => {
     Alert.alert('Sign Out', 'Are you sure you want to sign out from Eat & Fit?', [
@@ -29,6 +75,191 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({
     ]);
   };
 
+  const selectGender = () => {
+    Alert.alert('Select Gender', 'Choose your gender identity:', [
+      { text: 'Male', onPress: () => setGender('Male') },
+      { text: 'Female', onPress: () => setGender('Female') },
+      { text: 'Other', onPress: () => setGender('Other') },
+    ]);
+  };
+
+  const handleSaveChanges = () => {
+    if (!fullName.trim()) {
+      Alert.alert('Required Field', 'Full Name is required.');
+      return;
+    }
+    // Update local nickname state hook
+    setNickname(fullName);
+    Alert.alert('Success! 💾', 'Personal information saved.');
+    setShowPersonalInfo(false);
+  };
+
+  const handleCancelDiscard = () => {
+    Alert.alert('Discard Changes?', 'Any unsaved changes will be lost.', [
+      { text: 'Keep Editing', style: 'cancel' },
+      { text: 'Discard', style: 'destructive', onPress: () => {
+          setFullName(nickname || 'Alex Rivers');
+          setShowPersonalInfo(false);
+      }},
+    ]);
+  };
+
+  // Render sub-screen of Personal Information editing
+  if (showPersonalInfo) {
+    return (
+      <View style={styles.tabContentContainer}>
+        {/* Settings Header bar */}
+        <View style={styles.topBar}>
+          <TouchableOpacity style={styles.backButtonRow} onPress={handleCancelDiscard}>
+            <Text style={styles.backArrow}>←</Text>
+            <Text style={styles.settingsHeaderTitleText}>Settings</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.refreshButton}>
+            <Text style={styles.optionsDots}>⋮</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Profile Avatar Edit Card */}
+        <View style={styles.profileInfoContainer}>
+          <View style={styles.avatarContainerBig}>
+            <Image
+              source={{ uri: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=150&h=150&q=80' }}
+              style={styles.avatarImageBig}
+            />
+            <TouchableOpacity style={styles.pencilBadge}>
+              <Text style={styles.pencilEmoji}>✏️</Text>
+            </TouchableOpacity>
+          </View>
+          <Text style={styles.userNameText}>{fullName}</Text>
+          <Text style={styles.personalInfoLabel}>PERSONAL INFORMATION</Text>
+        </View>
+
+        {/* Form Body Scroll */}
+        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.formScrollContent}>
+          {/* Identity Section */}
+          <View style={styles.formSectionCard}>
+            <View style={styles.formSectionTitleRow}>
+              <Text style={styles.formSectionEmoji}>👤</Text>
+              <Text style={styles.formSectionTitleText}>Identity</Text>
+            </View>
+
+            <View style={styles.inputGroup}>
+              <Text style={styles.formInputLabel}>FULL NAME</Text>
+              <TextInput
+                style={styles.formTextInputField}
+                value={fullName}
+                onChangeText={setFullName}
+                placeholder="Enter full name"
+                placeholderTextColor="#9CA3AF"
+              />
+            </View>
+
+            <View style={styles.inputGroup}>
+              <Text style={styles.formInputLabel}>EMAIL ADDRESS</Text>
+              <TextInput
+                style={styles.formTextInputField}
+                value={email}
+                onChangeText={setEmail}
+                placeholder="Enter email address"
+                placeholderTextColor="#9CA3AF"
+                keyboardType="email-address"
+              />
+            </View>
+          </View>
+
+          {/* Contact & Demographics Section */}
+          <View style={styles.formSectionCard}>
+            <View style={styles.formSectionTitleRow}>
+              <Text style={styles.formSectionEmoji}>📄</Text>
+              <Text style={styles.formSectionTitleText}>Contact & Demographics</Text>
+            </View>
+
+            <View style={styles.inputGroup}>
+              <Text style={styles.formInputLabel}>PHONE NUMBER</Text>
+              <TextInput
+                style={styles.formTextInputField}
+                value={phone}
+                onChangeText={setPhone}
+                placeholder="Enter phone number"
+                placeholderTextColor="#9CA3AF"
+                keyboardType="phone-pad"
+              />
+            </View>
+
+            <View style={styles.dualColumnRow}>
+              <View style={[styles.inputGroup, { flex: 1, marginRight: 8 }]}>
+                <Text style={styles.formInputLabel}>DATE OF BIRTH</Text>
+                <View style={styles.dobContainerField}>
+                  <TextInput
+                    style={styles.dobTextInput}
+                    value={dob}
+                    onChangeText={setDob}
+                    placeholder="mm/dd/yyyy"
+                    placeholderTextColor="#9CA3AF"
+                  />
+                  <Text style={styles.calendarFieldEmoji}>📅</Text>
+                </View>
+              </View>
+
+              <View style={[styles.inputGroup, { flex: 1, marginLeft: 8 }]}>
+                <Text style={styles.formInputLabel}>GENDER</Text>
+                <TouchableOpacity style={styles.dropdownFieldBox} onPress={selectGender}>
+                  <Text style={styles.dropdownFieldText}>{gender}</Text>
+                  <Text style={styles.dropdownChevron}>▼</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+
+          {/* Physical Metrics Section */}
+          <View style={styles.formSectionCard}>
+            <View style={styles.formSectionTitleRow}>
+              <Text style={styles.formSectionEmoji}>💳</Text>
+              <Text style={styles.formSectionTitleText}>Physical Metrics</Text>
+            </View>
+
+            {/* Height Slider */}
+            <View style={styles.sliderMetricGroup}>
+              <View style={styles.sliderLabelRow}>
+                <Text style={styles.sliderLabelName}>HEIGHT</Text>
+                <Text style={styles.sliderValueHighlight}>{height} cm</Text>
+              </View>
+              <CustomSlider value={height} min={140} max={228} onChange={setHeight} />
+              <View style={styles.sliderRangeRow}>
+                <Text style={styles.sliderRangeLabel}>140CM</Text>
+                <Text style={styles.sliderRangeLabel}>228CM</Text>
+              </View>
+            </View>
+
+            {/* Weight Slider */}
+            <View style={styles.sliderMetricGroup}>
+              <View style={styles.sliderLabelRow}>
+                <Text style={styles.sliderLabelName}>WEIGHT</Text>
+                <Text style={styles.sliderValueHighlight}>{weight} kg</Text>
+              </View>
+              <CustomSlider value={weight} min={40} max={150} onChange={setWeight} />
+              <View style={styles.sliderRangeRow}>
+                <Text style={styles.sliderRangeLabel}>40KG</Text>
+                <Text style={styles.sliderRangeLabel}>150KG</Text>
+              </View>
+            </View>
+          </View>
+
+          {/* Action CTAs */}
+          <TouchableOpacity style={styles.saveChangesBtn} onPress={handleSaveChanges}>
+            <Text style={styles.saveBtnEmoji}>💾</Text>
+            <Text style={styles.saveBtnText}>Save Changes</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.cancelChangesBtn} onPress={handleCancelDiscard}>
+            <Text style={styles.cancelBtnText}>Cancel & Discard</Text>
+          </TouchableOpacity>
+        </ScrollView>
+      </View>
+    );
+  }
+
+  // Render main settings dashboard
   return (
     <View style={styles.tabContentContainer}>
       {/* Top Bar matching design */}
@@ -36,7 +267,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({
         <View style={styles.topBarLeft}>
           <View style={styles.avatarContainerHeader}>
             <Image
-              source={{ uri: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&h=150&q=80' }}
+              source={{ uri: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=150&h=150&q=80' }}
               style={styles.avatarImage}
             />
           </View>
@@ -51,7 +282,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({
       <View style={styles.profileInfoContainer}>
         <View style={styles.avatarContainerBig}>
           <Image
-            source={{ uri: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&h=150&q=80' }}
+            source={{ uri: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=150&h=150&q=80' }}
             style={styles.avatarImageBig}
           />
           <View style={styles.proBadge}>
@@ -137,7 +368,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({
         <Text style={styles.sectionHeaderTitle}>Account Settings</Text>
 
         {/* Personal Info */}
-        <TouchableOpacity style={styles.settingListItem} onPress={onSave}>
+        <TouchableOpacity style={styles.settingListItem} onPress={() => setShowPersonalInfo(true)}>
           <View style={styles.settingIconWrapper}>
             <Text style={styles.settingEmoji}>👤</Text>
           </View>
@@ -227,6 +458,26 @@ const styles = StyleSheet.create({
   bellEmoji: {
     fontSize: 16,
   },
+  backButtonRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  backArrow: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#24C76D',
+  },
+  settingsHeaderTitleText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#24C76D',
+    marginLeft: 8,
+  },
+  optionsDots: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#9CA3AF',
+  },
   profileInfoContainer: {
     alignItems: 'center',
     marginVertical: 24,
@@ -261,11 +512,34 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     letterSpacing: 0.5,
   },
+  pencilBadge: {
+    position: 'absolute',
+    bottom: -4,
+    right: -4,
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    backgroundColor: '#24C76D',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: '#FFFFFF',
+  },
+  pencilEmoji: {
+    fontSize: 12,
+  },
   userNameText: {
     fontSize: 24,
     fontWeight: 'bold',
     color: '#111827',
     marginTop: 12,
+  },
+  personalInfoLabel: {
+    fontSize: 10,
+    fontWeight: 'bold',
+    color: '#9CA3AF',
+    marginTop: 6,
+    letterSpacing: 0.5,
   },
   userTierText: {
     fontSize: 13,
@@ -472,6 +746,181 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   signOutText: {
+    fontSize: 15,
+    fontWeight: 'bold',
+    color: '#EF4444',
+  },
+
+  // Personal Info Form styles
+  formScrollContent: {
+    paddingBottom: 40,
+  },
+  formSectionCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    padding: 20,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.04,
+    shadowRadius: 12,
+    elevation: 3,
+    marginBottom: 20,
+  },
+  formSectionTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  formSectionEmoji: {
+    fontSize: 18,
+  },
+  formSectionTitleText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#111827',
+    marginLeft: 8,
+  },
+  inputGroup: {
+    marginBottom: 16,
+  },
+  formInputLabel: {
+    fontSize: 10,
+    fontWeight: 'bold',
+    color: '#9CA3AF',
+    marginBottom: 8,
+    letterSpacing: 0.5,
+  },
+  formTextInputField: {
+    backgroundColor: '#F9FAFB',
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    color: '#111827',
+    fontSize: 15,
+  },
+  dualColumnRow: {
+    flexDirection: 'row',
+  },
+  dobContainerField: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F9FAFB',
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    borderRadius: 12,
+    paddingHorizontal: 16,
+  },
+  dobTextInput: {
+    flex: 1,
+    paddingVertical: 12,
+    color: '#111827',
+    fontSize: 15,
+  },
+  calendarFieldEmoji: {
+    fontSize: 16,
+    color: '#9CA3AF',
+  },
+  dropdownFieldBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#F9FAFB',
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 12.5,
+  },
+  dropdownFieldText: {
+    fontSize: 15,
+    color: '#111827',
+  },
+  dropdownChevron: {
+    fontSize: 10,
+    color: '#9CA3AF',
+  },
+  sliderMetricGroup: {
+    marginBottom: 20,
+  },
+  sliderLabelRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+  sliderLabelName: {
+    fontSize: 10,
+    fontWeight: 'bold',
+    color: '#9CA3AF',
+    letterSpacing: 0.5,
+  },
+  sliderValueHighlight: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#24C76D',
+  },
+  sliderTrack: {
+    height: 6,
+    backgroundColor: '#E5E7EB',
+    borderRadius: 3,
+    position: 'relative',
+    marginTop: 10,
+    marginBottom: 6,
+  },
+  sliderFill: {
+    height: '100%',
+    backgroundColor: '#24C76D',
+    borderRadius: 3,
+  },
+  sliderThumb: {
+    position: 'absolute',
+    top: -5,
+    width: 16,
+    height: 16,
+    borderRadius: 8,
+    backgroundColor: '#24C76D',
+  },
+  sliderRangeRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 4,
+  },
+  sliderRangeLabel: {
+    fontSize: 10,
+    color: '#9CA3AF',
+    fontWeight: 'bold',
+  },
+  saveChangesBtn: {
+    backgroundColor: '#24C76D',
+    borderRadius: 12,
+    paddingVertical: 14,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 10,
+  },
+  saveBtnEmoji: {
+    fontSize: 16,
+    marginRight: 8,
+  },
+  saveBtnText: {
+    fontSize: 15,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+  },
+  cancelChangesBtn: {
+    borderWidth: 1.5,
+    borderColor: '#EF4444',
+    borderRadius: 12,
+    paddingVertical: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#FFFFFF',
+    marginBottom: 30,
+  },
+  cancelBtnText: {
     fontSize: 15,
     fontWeight: 'bold',
     color: '#EF4444',
