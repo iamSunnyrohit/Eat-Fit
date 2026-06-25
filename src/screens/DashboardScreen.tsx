@@ -41,18 +41,13 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({
     <View style={styles.tabContentContainer}>
       {/* Top Bar matching screenshot */}
       <View style={styles.topBar}>
-        <View style={styles.topBarLeft}>
-          <View style={styles.avatarContainer}>
-            <Image
-              source={{ uri: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80' }}
-              style={styles.avatarImage}
-            />
-          </View>
-          <Text style={styles.appName}>Eat & Fit</Text>
+        <Text style={styles.appName}>Eat & Fit</Text>
+        <View style={styles.avatarContainer}>
+          <Image
+            source={{ uri: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80' }}
+            style={styles.avatarImage}
+          />
         </View>
-        <TouchableOpacity style={styles.refreshButton}>
-          <Text style={styles.refreshEmoji}>🔄</Text>
-        </TouchableOpacity>
       </View>
 
       {/* Welcome Title */}
@@ -244,7 +239,6 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     color: '#24C76D',
-    marginLeft: 12,
   },
   refreshButton: {
     width: 36,
