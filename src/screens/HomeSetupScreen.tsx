@@ -5,17 +5,18 @@ import {
   StyleSheet, 
   TextInput, 
   TouchableOpacity, 
-  ScrollView, 
+  ScrollView,
   Switch, 
   ActivityIndicator,
   Alert,
   Platform
 } from 'react-native';
+import { requestHealthPermissions } from '../services/HealthService';
 
 // Standard local API URL. For Android emulator, use 10.0.2.2. For iOS/Web, use localhost.
-const API_BASE_URL = Platform.OS === 'android' ? 'http://10.0.2.2:5002' : 'http://localhost:5002';
+const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || (Platform.OS === 'android' ? 'http://10.0.2.2:5002' : 'http://localhost:5002');
 
-const HomeSetupScreen = ({ route, navigation }) => {
+const HomeSetupScreen = ({ route, navigation }: { route: any; navigation: any }) => {
   const { authProvider = 'guest', initialNickname = '', initialEmail = '' } = route.params || {};
 
   const [nickname, setNickname] = useState(initialNickname);
@@ -23,6 +24,29 @@ const HomeSetupScreen = ({ route, navigation }) => {
   const [calorieTarget, setCalorieTarget] = useState('2000');
   const [syncHealthDevices, setSyncHealthDevices] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  const handleSyncHealthToggle = async (value: boolean) => {
+    if (value) {
+      try {
+        const granted = await requestHealthPermissions();
+        if (granted) {
+          setSyncHealthDevices(true);
+        } else {
+          Alert.alert(
+            'Permission Denied',
+            'Permission to access Apple HealthKit was denied. Please enable it in Settings > Health > Data Access & Devices > Eat-Fit if you wish to sync device data.',
+            [{ text: 'OK' }]
+          );
+          setSyncHealthDevices(false);
+        }
+      } catch (error) {
+        console.warn('Error requesting health permissions:', error);
+        setSyncHealthDevices(false);
+      }
+    } else {
+      setSyncHealthDevices(false);
+    }
+  };
 
   const handleSaveProfile = async () => {
     if (!nickname.trim()) {
@@ -64,7 +88,8 @@ const HomeSetupScreen = ({ route, navigation }) => {
             onPress: () => navigation.navigate('Home', { 
               profileId: data._id, 
               nickname: data.nickname, 
-              dailyCalorieTarget: data.dailyCalorieTarget 
+              dailyCalorieTarget: data.dailyCalorieTarget,
+              syncHealthDevices: data.syncHealthDevices ?? syncHealthDevices
             }) 
           }]
         );
@@ -81,7 +106,8 @@ const HomeSetupScreen = ({ route, navigation }) => {
           onPress: () => navigation.navigate('Home', { 
             profileId: `mock-draft-${Date.now()}`, 
             nickname: nickname.trim(), 
-            dailyCalorieTarget: parseInt(calorieTarget, 10) || 2000 
+            dailyCalorieTarget: parseInt(calorieTarget, 10) || 2000,
+            syncHealthDevices: syncHealthDevices
           }) 
         }]
       );
@@ -91,7 +117,7 @@ const HomeSetupScreen = ({ route, navigation }) => {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
       <View style={styles.header}>
         <Text style={styles.title}>Set Up Profile 👤</Text>
         <Text style={styles.subtitle}>Configure your daily targets & telemetry integration</Text>
@@ -167,7 +193,7 @@ const HomeSetupScreen = ({ route, navigation }) => {
             trackColor={{ false: '#2c2e3a', true: '#34c759' }}
             thumbColor={syncHealthDevices ? '#ffffff' : '#a0a5b5'}
             ios_backgroundColor="#2c2e3a"
-            onValueChange={setSyncHealthDevices}
+            onValueChange={handleSyncHealthToggle}
             value={syncHealthDevices}
           />
         </View>
@@ -293,10 +319,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     alignItems: 'center',
     marginBottom: 20,
-    shadowColor: '#34c759',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 5,
+    boxShadow: '0px 4px 5px rgba(52, 199, 89, 0.3)',
     elevation: 5,
   },
   saveButtonText: {

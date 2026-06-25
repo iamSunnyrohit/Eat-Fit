@@ -7,21 +7,41 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.eatandfit.app",
+      "entitlements": {
+        "com.apple.developer.healthkit": true
+      },
+      "infoPlist": {
+        "NSHealthShareUsageDescription": "Eat and Fit requires access to your historical health metrics to automatically calculate and graph your weekly workout consistency on your active tracking dashboard.",
+        "NSHealthUpdateUsageDescription": "Eat and Fit requires permissions to log calculated dietary intake parameters directly to your Apple Health index when requested."
+      }
     },
     "android": {
+      "package": "com.eatandfit.app",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
-      }
+      },
+      "permissions": [
+        "android.permission.health.READ_ACTIVE_CALORIES_BURNED",
+        "android.permission.health.READ_DIETARY_WATER_AND_NUTRIENTS"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
-      "@react-native-google-signin/google-signin"
+      "@react-native-google-signin/google-signin",
+      [
+        "react-native-health",
+        {
+          "healthSharePermission": "Eat and Fit requires access to your historical health metrics to automatically calculate and graph your weekly workout consistency on your active tracking dashboard.",
+          "healthUpdatePermission": "Eat and Fit requires permissions to log calculated dietary intake parameters directly to your Apple Health index when requested."
+        }
+      ]
     ]
   }
 }

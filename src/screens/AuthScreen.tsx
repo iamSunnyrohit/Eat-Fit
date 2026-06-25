@@ -1,40 +1,72 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  View, 
-  Text, 
-  StyleSheet, 
-  TouchableOpacity, 
-  ActivityIndicator, 
-  Modal, 
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  ActivityIndicator,
+  Modal,
   Alert,
-  Platform
+  Platform,
+  NativeModules
 } from 'react-native';
 import * as AppleAuthentication from 'expo-apple-authentication';
-import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
 
-const AuthScreen = ({ navigation }) => {
+let GoogleSignin: any;
+let statusCodes: any;
+
+const hasRNGoogleSignin = !!(NativeModules && NativeModules.RNGoogleSignin);
+
+if (Platform.OS !== 'web' && hasRNGoogleSignin) {
+  try {
+    const googleSigninModule = require('@react-native-google-signin/google-signin');
+    GoogleSignin = googleSigninModule.GoogleSignin;
+    statusCodes = googleSigninModule.statusCodes;
+  } catch (error) {
+    console.warn('Failed to load Google Signin native module:', error);
+  }
+}
+
+if (!GoogleSignin) {
+  GoogleSignin = {
+    configure: () => { },
+    hasPlayServices: () => Promise.resolve(true),
+    signIn: () => Promise.reject(new Error('Google Sign-In not available in Expo Go')),
+  };
+  statusCodes = {
+    SIGN_IN_CANCELLED: 'SIGN_IN_CANCELLED',
+    IN_PROGRESS: 'IN_PROGRESS',
+    PLAY_SERVICES_NOT_AVAILABLE: 'PLAY_SERVICES_NOT_AVAILABLE',
+  };
+}
+
+
+const AuthScreen = ({ navigation }: { navigation: any }) => {
   const [authenticating, setAuthenticating] = useState(false);
   const [providerName, setProviderName] = useState('');
 
   // Configure Google Sign-In on mount
   useEffect(() => {
-    try {
-      GoogleSignin.configure({
-        // Add configurations when API keys are ready
-      });
-    } catch (e) {
-      console.warn('GoogleSignin configure warning:', e.message);
+    if (Platform.OS !== 'web') {
+      try {
+        GoogleSignin.configure({
+          webClientId: process.env.GOOGLE_WEB_CLIENT_ID || '',
+          offlineAccess: true,
+        });
+      } catch (e: any) {
+        console.warn('GoogleSignin configure warning:', e.message);
+      }
     }
   }, []);
 
   // Standard fallback mock login for testing environments (Simulator / Expo Go / Web)
-  const triggerMockAuth = (provider) => {
+  const triggerMockAuth = (provider: string) => {
     setProviderName(provider);
     setAuthenticating(true);
 
     setTimeout(() => {
       setAuthenticating(false);
-      
+
       let initialNickname = '';
       let initialEmail = '';
       if (provider === 'Apple') {
@@ -67,7 +99,7 @@ const AuthScreen = ({ navigation }) => {
       const userInfo = await GoogleSignin.signIn();
       setAuthenticating(false);
 
-      const user = userInfo.data?.user || userInfo.user;
+      const user = userInfo.data?.user || (userInfo as any).user;
       const nickname = user?.name || 'Google User';
       const email = user?.email || 'user@gmail.com';
 
@@ -76,7 +108,7 @@ const AuthScreen = ({ navigation }) => {
         initialNickname: nickname,
         initialEmail: email
       });
-    } catch (error) {
+    } catch (error: any) {
       setAuthenticating(false);
       console.error('Google Sign-In error details:', error);
 
@@ -123,7 +155,7 @@ const AuthScreen = ({ navigation }) => {
       });
       setAuthenticating(false);
 
-      const nickname = credential.fullName?.givenName 
+      const nickname = credential.fullName?.givenName
         ? `${credential.fullName.givenName} ${credential.fullName.familyName || ''}`.trim()
         : 'Apple User';
       const email = credential.email || 'user@icloud.com';
@@ -133,7 +165,7 @@ const AuthScreen = ({ navigation }) => {
         initialNickname: nickname,
         initialEmail: email
       });
-    } catch (error) {
+    } catch (error: any) {
       setAuthenticating(false);
       console.error('Apple Verification error details:', error);
 
@@ -173,7 +205,7 @@ const AuthScreen = ({ navigation }) => {
         <TouchableOpacity style={styles.appleButton} onPress={handleAppleAuth}>
           <Text style={styles.appleButtonText}> Sign in with Apple</Text>
         </TouchableOpacity>
-        
+
         <TouchableOpacity style={styles.googleButton} onPress={handleGoogleAuth}>
           <Text style={styles.googleButtonText}>👤 Sign in with Google</Text>
         </TouchableOpacity>
