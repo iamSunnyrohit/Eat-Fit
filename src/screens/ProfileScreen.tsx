@@ -55,8 +55,9 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({
   handleProfileSyncToggle,
   onSave,
 }) => {
-  // Navigation active state inside the Profile tab
+  // Navigation active sub-screens inside the Profile tab
   const [showPersonalInfo, setShowPersonalInfo] = useState(false);
+  const [showSubscription, setShowSubscription] = useState(false);
   const [googleSync, setGoogleSync] = useState(false);
 
   // Personal info fields
@@ -88,7 +89,6 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({
       Alert.alert('Required Field', 'Full Name is required.');
       return;
     }
-    // Update local nickname state hook
     setNickname(fullName);
     Alert.alert('Success! 💾', 'Personal information saved.');
     setShowPersonalInfo(false);
@@ -104,7 +104,128 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({
     ]);
   };
 
-  // Render sub-screen of Personal Information editing
+  // Render Sub-screen 1: Subscription page
+  if (showSubscription) {
+    return (
+      <View style={styles.tabContentContainer}>
+        {/* Settings Header bar */}
+        <View style={styles.topBar}>
+          <TouchableOpacity style={styles.backButtonRow} onPress={() => setShowSubscription(false)}>
+            <Text style={styles.backArrow}>←</Text>
+            <Text style={styles.settingsHeaderTitleText}>Subscription</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.refreshButton}>
+            <Text style={styles.optionsDots}>⋮</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Scrollable Subscription details */}
+        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.formScrollContent}>
+          {/* Main Active Plan Card */}
+          <View style={styles.subPlanCard}>
+            <View style={styles.subActiveBadge}>
+              <Text style={styles.subActiveBadgeText}>ACTIVE PLAN</Text>
+            </View>
+            <Text style={styles.subPlanNameText}>Annual Pro</Text>
+            <Text style={styles.subPlanPriceText}>
+              $99.99 <Text style={styles.subPlanPeriodText}>/ year</Text>
+            </Text>
+            <View style={styles.subRenewalBox}>
+              <Text style={styles.subRenewalLabel}>NEXT RENEWAL</Text>
+              <Text style={styles.subRenewalValue}>October 24, 2024</Text>
+            </View>
+          </View>
+
+          {/* Pro Benefits Section */}
+          <View style={styles.benefitsSection}>
+            <Text style={styles.benefitsSectionTitle}>Pro Benefits</Text>
+
+            {/* Benefit 1 */}
+            <View style={styles.benefitCard}>
+              <View style={styles.benefitIconWrapper}>
+                <Text style={styles.benefitEmoji}>📊</Text>
+              </View>
+              <View style={styles.benefitMeta}>
+                <Text style={styles.benefitTitleText}>Advanced Analytics</Text>
+                <Text style={styles.benefitSubtitleText}>
+                  Deep dive into your metabolic trends and performance metrics.
+                </Text>
+                <Text style={styles.benefitStatusText}>✓ Enabled</Text>
+              </View>
+            </View>
+
+            {/* Benefit 2 */}
+            <View style={styles.benefitCard}>
+              <View style={[styles.benefitIconWrapper, { backgroundColor: '#EBFDF2' }]}>
+                <Text style={styles.benefitEmoji}>📷</Text>
+              </View>
+              <View style={styles.benefitMeta}>
+                <Text style={styles.benefitTitleText}>AI Meal Scanner</Text>
+                <Text style={styles.benefitSubtitleText}>
+                  Instant macro-nutrient breakdown using your phone's camera.
+                </Text>
+                <Text style={styles.benefitStatusText}>✓ Enabled</Text>
+              </View>
+            </View>
+
+            {/* Benefit 3 */}
+            <View style={styles.benefitCard}>
+              <View style={[styles.benefitIconWrapper, { backgroundColor: '#EEF2FF' }]}>
+                <Text style={styles.benefitEmoji}>🏋️‍♂️</Text>
+              </View>
+              <View style={styles.benefitMeta}>
+                <Text style={styles.benefitTitleText}>Exclusive Workouts</Text>
+                <Text style={styles.benefitSubtitleText}>
+                  Access to premium athlete-designed training programs.
+                </Text>
+                <Text style={styles.benefitStatusText}>✓ Enabled</Text>
+              </View>
+            </View>
+          </View>
+
+          {/* Payment Method Section */}
+          <View style={styles.paymentSection}>
+            <Text style={styles.benefitsSectionTitle}>Payment Method</Text>
+            <View style={styles.paymentCard}>
+              <View style={styles.visaCardBadge}>
+                <Text style={styles.visaCardText}>VISA</Text>
+              </View>
+              <View style={styles.paymentMeta}>
+                <Text style={styles.paymentCardTitle}>Visa ending in 4242</Text>
+                <Text style={styles.paymentCardExpiry}>Expires 12/26</Text>
+              </View>
+              <TouchableOpacity>
+                <Text style={styles.editPaymentText}>Edit</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          {/* Management Section */}
+          <View style={styles.managementSection}>
+            <Text style={styles.benefitsSectionTitle}>Management</Text>
+
+            <TouchableOpacity style={styles.managePlanBtn} onPress={() => Alert.alert('Manage Plan', 'Redirecting to App Store settings...')}>
+              <Text style={styles.managePlanBtnIcon}>🔄</Text>
+              <Text style={styles.managePlanBtnText}>Manage Plan</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.restorePurchasesBtn} onPress={() => Alert.alert('Purchases Restored', 'Your Pro account features have been refreshed.')}>
+              <Text style={styles.restorePurchasesBtnIcon}>📥</Text>
+              <Text style={styles.restorePurchasesBtnText}>Restore Purchases</Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* Progress Separator Line & Footer tagline */}
+          <View style={styles.subFooterLineTrack}>
+            <View style={styles.subFooterLineFill} />
+          </View>
+          <Text style={styles.subFooterText}>Fueling your potential since 2021</Text>
+        </ScrollView>
+      </View>
+    );
+  }
+
+  // Render Sub-screen 2: Personal Information editing page
   if (showPersonalInfo) {
     return (
       <View style={styles.tabContentContainer}>
@@ -377,7 +498,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({
         </TouchableOpacity>
 
         {/* Subscription */}
-        <TouchableOpacity style={styles.settingListItem}>
+        <TouchableOpacity style={styles.settingListItem} onPress={() => setShowSubscription(true)}>
           <View style={styles.settingIconWrapper}>
             <Text style={styles.settingEmoji}>💳</Text>
           </View>
@@ -924,6 +1045,232 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: 'bold',
     color: '#EF4444',
+  },
+
+  // Subscription Sub-screen styles
+  subPlanCard: {
+    backgroundColor: '#24C76D',
+    borderRadius: 20,
+    padding: 24,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    elevation: 4,
+    marginBottom: 24,
+    marginTop: 10,
+  },
+  subActiveBadge: {
+    backgroundColor: 'rgba(0, 0, 0, 0.15)',
+    paddingVertical: 4,
+    paddingHorizontal: 10,
+    borderRadius: 8,
+    alignSelf: 'flex-start',
+  },
+  subActiveBadgeText: {
+    fontSize: 10,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+    letterSpacing: 0.5,
+  },
+  subPlanNameText: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+    marginTop: 14,
+  },
+  subPlanPriceText: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+    marginTop: 8,
+  },
+  subPlanPeriodText: {
+    fontSize: 14,
+    fontWeight: 'normal',
+  },
+  subRenewalBox: {
+    backgroundColor: 'rgba(255, 255, 255, 0.18)',
+    borderRadius: 12,
+    padding: 14,
+    marginTop: 18,
+  },
+  subRenewalLabel: {
+    fontSize: 9,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+    letterSpacing: 0.5,
+  },
+  subRenewalValue: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+    marginTop: 4,
+  },
+  benefitsSection: {
+    marginBottom: 24,
+  },
+  benefitsSectionTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#111827',
+    marginBottom: 14,
+  },
+  benefitCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 12,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.03,
+    shadowRadius: 10,
+    elevation: 2,
+  },
+  benefitIconWrapper: {
+    width: 44,
+    height: 44,
+    borderRadius: 12,
+    backgroundColor: '#E8FDF0',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  benefitEmoji: {
+    fontSize: 20,
+  },
+  benefitMeta: {
+    flex: 1,
+    marginLeft: 14,
+  },
+  benefitTitleText: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#111827',
+  },
+  benefitSubtitleText: {
+    fontSize: 11,
+    color: '#6B7280',
+    lineHeight: 15,
+    marginVertical: 4,
+  },
+  benefitStatusText: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: '#24C76D',
+  },
+  paymentSection: {
+    marginBottom: 24,
+  },
+  paymentCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    padding: 16,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.03,
+    shadowRadius: 10,
+    elevation: 2,
+  },
+  visaCardBadge: {
+    backgroundColor: '#F3F4F6',
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    borderRadius: 8,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+  },
+  visaCardText: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: '#1F2937',
+    fontStyle: 'italic',
+  },
+  paymentMeta: {
+    flex: 1,
+    marginLeft: 14,
+  },
+  paymentCardTitle: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#111827',
+  },
+  paymentCardExpiry: {
+    fontSize: 12,
+    color: '#9CA3AF',
+    marginTop: 3,
+  },
+  editPaymentText: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#24C76D',
+    paddingHorizontal: 8,
+  },
+  managementSection: {
+    marginBottom: 24,
+  },
+  managePlanBtn: {
+    backgroundColor: '#0F733C',
+    borderRadius: 12,
+    paddingVertical: 14,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 12,
+  },
+  managePlanBtnIcon: {
+    fontSize: 16,
+    marginRight: 8,
+  },
+  managePlanBtnText: {
+    fontSize: 15,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+  },
+  restorePurchasesBtn: {
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1.5,
+    borderColor: '#374151',
+    borderRadius: 12,
+    paddingVertical: 14,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 20,
+  },
+  restorePurchasesBtnIcon: {
+    fontSize: 16,
+    marginRight: 8,
+  },
+  restorePurchasesBtnText: {
+    fontSize: 15,
+    fontWeight: 'bold',
+    color: '#374151',
+  },
+  subFooterLineTrack: {
+    height: 3,
+    backgroundColor: '#E5E7EB',
+    borderRadius: 1.5,
+    width: '60%',
+    alignSelf: 'center',
+    marginVertical: 14,
+  },
+  subFooterLineFill: {
+    height: '100%',
+    backgroundColor: '#9CA3AF',
+    borderRadius: 1.5,
+    width: '100%',
+  },
+  subFooterText: {
+    fontSize: 11,
+    fontWeight: 'bold',
+    color: '#9CA3AF',
+    textAlign: 'center',
+    marginBottom: 20,
+    letterSpacing: 0.5,
   },
 });
 
