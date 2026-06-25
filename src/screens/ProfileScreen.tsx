@@ -549,12 +549,6 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({
       {/* Top Bar matching design */}
       <View style={styles.topBar}>
         <Text style={styles.appName}>Eat & Fit</Text>
-        <View style={styles.avatarContainerHeader}>
-          <Image
-            source={{ uri: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=150&h=150&q=80' }}
-            style={styles.avatarImage}
-          />
-        </View>
       </View>
 
       {/* Profile Info Section */}
