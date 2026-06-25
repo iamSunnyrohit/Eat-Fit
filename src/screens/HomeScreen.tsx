@@ -253,6 +253,7 @@ const styles = StyleSheet.create({
   scrollContent: {
     padding: 20,
     paddingBottom: 110,
+    paddingTop: Platform.OS === 'ios' ? 45 : 35,
   },
   bottomTabBar: {
     flexDirection: 'row',
