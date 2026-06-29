@@ -14,6 +14,17 @@ import { ThemeProvider } from './src/context/ThemeContext';
 
 LogBox.ignoreLogs(['props.pointerEvents is deprecated']);
 
+// Suppress react-native-web pointerEvents warning in browser
+if (typeof window !== 'undefined') {
+  const originalWarn = console.warn;
+  console.warn = (...args: any[]) => {
+    if (args[0] && typeof args[0] === 'string' && args[0].includes('props.pointerEvents is deprecated')) {
+      return;
+    }
+    originalWarn(...args);
+  };
+}
+
 const Stack = createStackNavigator();
 
 export default function App() {
