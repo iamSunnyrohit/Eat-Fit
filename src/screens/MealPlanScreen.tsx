@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, TextInput, ActivityIndicator, Alert } from 'react-native';
+import React, { useState, useRef, useEffect } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Image, TextInput, ActivityIndicator, Alert, Animated } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { useTheme } from '../context/ThemeContext';
 
@@ -9,7 +9,6 @@ interface MealPlanScreenProps {
   setConsumedCalories: React.Dispatch<React.SetStateAction<number>>;
 }
 
-// Mock AI Scanner Food database for simulation
 const FOOD_SCANNER_DATABASE = [
   { name: 'Keto Baked Salmon 🥩', calories: 580, protein: 42, fats: 28, carbs: 4 },
   { name: 'Avocado Toast with Egg 🥑🍳', calories: 340, protein: 14, fats: 18, carbs: 24 },
@@ -37,7 +36,34 @@ const MealPlanScreen: React.FC<MealPlanScreenProps> = ({
   const [scannedImage, setScannedImage] = useState<string | null>(null);
   const [scanResult, setScanResult] = useState<any>(null);
 
-  // List of logged meals starting with reference items
+  const scanAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    if (scanning) {
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(scanAnim, {
+            toValue: 1,
+            duration: 2000,
+            useNativeDriver: true,
+          }),
+          Animated.timing(scanAnim, {
+            toValue: 0,
+            duration: 2000,
+            useNativeDriver: true,
+          })
+        ])
+      ).start();
+    } else {
+      scanAnim.setValue(0);
+    }
+  }, [scanning, scanAnim]);
+
+  const scannerTranslateY = scanAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, 177], // scannerPreviewImage height (180) minus scanLine height (3)
+  });
+
   const [loggedMeals, setLoggedMeals] = useState([
     {
       id: '1',
@@ -69,11 +95,9 @@ const MealPlanScreen: React.FC<MealPlanScreenProps> = ({
     },
   ]);
 
-  // Computed variables for Energy Balance
   const remainingCalories = Math.max(dailyCalorieTarget - consumedCalories, 0);
   const pct = Math.min((consumedCalories / dailyCalorieTarget) * 100, 100);
 
-  // Handle camera/library selection and simulate AI scanner
   const handleImageSource = async (useCamera = false) => {
     let result;
     try {
@@ -96,7 +120,6 @@ const MealPlanScreen: React.FC<MealPlanScreenProps> = ({
         setScanResult(null);
         setScanning(true);
 
-        // Simulate AI Server processing delay
         setTimeout(() => {
           setScanning(false);
           const randomFood = FOOD_SCANNER_DATABASE[Math.floor(Math.random() * FOOD_SCANNER_DATABASE.length)];
@@ -111,10 +134,8 @@ const MealPlanScreen: React.FC<MealPlanScreenProps> = ({
 
   const addScannedMeal = () => {
     if (scanResult) {
-      // Add calories dynamically to parents
       setConsumedCalories(prev => prev + scanResult.calories);
 
-      // Append to local list
       const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
       const newMeal = {
         id: Math.random().toString(),
@@ -126,14 +147,12 @@ const MealPlanScreen: React.FC<MealPlanScreenProps> = ({
 
       setLoggedMeals(prev => [newMeal, ...prev]);
       Alert.alert('Logged! 🍏', `${scanResult.name} (${scanResult.calories} kcal) added to your nutrition schedule.`);
-      
-      // Reset scanner
+
       setScannedImage(null);
       setScanResult(null);
     }
   };
 
-  // Add mixed snacks quick log
   const handleQuickLog = () => {
     const snackCalories = 180;
     setConsumedCalories(prev => prev + snackCalories);
@@ -151,14 +170,12 @@ const MealPlanScreen: React.FC<MealPlanScreenProps> = ({
     Alert.alert('Logged! 🍇', `Mixed Berries & Walnuts (${snackCalories} kcal) added.`);
   };
 
-  // Filter logged list by search query
   const filteredMeals = loggedMeals.filter(meal =>
     meal.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
     <View style={[styles.tabContentContainer, { backgroundColor: theme.bg }]}>
-      {/* Top Bar matching design */}
       <View style={styles.topBar}>
         <Text style={styles.appName}>Eat & Fit</Text>
         <View style={styles.avatarContainer}>
@@ -169,7 +186,6 @@ const MealPlanScreen: React.FC<MealPlanScreenProps> = ({
         </View>
       </View>
 
-      {/* RECIPE IDEAS Search bar */}
       <View style={[styles.recipeIdeasCard, { backgroundColor: theme.card }]}>
         <Text style={styles.recipeHeader}>RECIPE IDEAS</Text>
         <Text style={[styles.recipeSubtitle, { color: theme.text }]}>Find healthy meal inspirations</Text>
@@ -185,7 +201,6 @@ const MealPlanScreen: React.FC<MealPlanScreenProps> = ({
         </View>
       </View>
 
-      {/* ENERGY BALANCE card */}
       <View style={[styles.balanceCard, { backgroundColor: theme.card }]}>
         <Text style={styles.balanceHeader}>ENERGY BALANCE</Text>
         <Text style={styles.balanceValue}>
@@ -201,11 +216,9 @@ const MealPlanScreen: React.FC<MealPlanScreenProps> = ({
         </View>
       </View>
 
-      {/* MACROS progress bars card */}
       <View style={[styles.macrosCard, { backgroundColor: theme.card }]}>
         <Text style={styles.macrosHeader}>MACROS</Text>
 
-        {/* Protein Macro */}
         <View style={styles.macroItemRow}>
           <View style={styles.macroLabelGroup}>
             <Text style={[styles.macroLabel, { color: '#24C76D' }]}>Protein</Text>
@@ -216,7 +229,6 @@ const MealPlanScreen: React.FC<MealPlanScreenProps> = ({
           </View>
         </View>
 
-        {/* Carbs Macro */}
         <View style={styles.macroItemRow}>
           <View style={styles.macroLabelGroup}>
             <Text style={[styles.macroLabel, { color: '#3B82F6' }]}>Carbs</Text>
@@ -227,7 +239,6 @@ const MealPlanScreen: React.FC<MealPlanScreenProps> = ({
           </View>
         </View>
 
-        {/* Fat Macro */}
         <View style={styles.macroItemRow}>
           <View style={styles.macroLabelGroup}>
             <Text style={[styles.macroLabel, { color: '#FF6E5B' }]}>Fat</Text>
@@ -239,7 +250,6 @@ const MealPlanScreen: React.FC<MealPlanScreenProps> = ({
         </View>
       </View>
 
-      {/* AI Calorie Scanner Card (Dashed Border) */}
       <View style={[styles.scannerDashedBox, { backgroundColor: isDarkMode ? '#1C1C1E' : '#F8FBF9', borderColor: '#24C76D' }]}>
         <View style={styles.cameraIconBadge}>
           <Text style={styles.cameraEmoji}>📷</Text>
@@ -262,7 +272,12 @@ const MealPlanScreen: React.FC<MealPlanScreenProps> = ({
 
         {scannedImage && (
           <View style={[styles.scannerPreviewPanel, { backgroundColor: theme.card, borderColor: theme.border }]}>
-            <Image source={{ uri: scannedImage }} style={styles.scannerPreviewImage} />
+            <View style={styles.scannerPreviewImageContainer}>
+              <Image source={{ uri: scannedImage }} style={styles.scannerPreviewImage} />
+              {scanning && (
+                <Animated.View style={[styles.scanLine, { transform: [{ translateY: scannerTranslateY }] }]} />
+              )}
+            </View>
             {scanning && (
               <View style={[styles.scannerOverlay, { backgroundColor: isDarkMode ? 'rgba(28, 28, 30, 0.9)' : 'rgba(255, 255, 255, 0.85)' }]}>
                 <ActivityIndicator size="small" color="#24C76D" />
@@ -284,7 +299,6 @@ const MealPlanScreen: React.FC<MealPlanScreenProps> = ({
         )}
       </View>
 
-      {/* Today's Meals logged list */}
       <View style={styles.mealsSection}>
         <View style={styles.mealsSectionHeader}>
           <Text style={[styles.mealsSectionTitle, { color: theme.text }]}>Today's Meals</Text>
@@ -308,7 +322,6 @@ const MealPlanScreen: React.FC<MealPlanScreenProps> = ({
         ))}
       </View>
 
-      {/* Floating Action Button for quick logging */}
       <TouchableOpacity style={styles.floatingActionButton} onPress={handleQuickLog}>
         <Text style={styles.fabIcon}>＋</Text>
         <Text style={styles.fabText}>Log Meal</Text>
@@ -334,9 +347,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   avatarContainer: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    borderWidth: 2,
+    borderColor: '#24C76D',
     overflow: 'hidden',
     backgroundColor: '#E5E7EB',
   },
@@ -670,9 +685,11 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   mealThumb: {
-    width: 48,
-    height: 48,
+    width: 52,
+    height: 52,
     borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#3a3a3c',
   },
   mealMeta: {
     flex: 1,
@@ -729,6 +746,23 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontWeight: 'bold',
     marginLeft: 6,
+  },
+  scannerPreviewImageContainer: {
+    position: 'relative',
+    width: '100%',
+    height: 180,
+    overflow: 'hidden',
+  },
+  scanLine: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    height: 3,
+    backgroundColor: '#24C76D',
+    shadowColor: '#24C76D',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.8,
+    shadowRadius: 5,
   },
 });
 

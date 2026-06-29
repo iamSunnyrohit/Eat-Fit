@@ -41,3 +41,8 @@ backend/.env
 # generated native folders
 /ios
 /android
+
+# Google secrets
+client_secret_*.json
+google-services.json
+GoogleService-Info.plist

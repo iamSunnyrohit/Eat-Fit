@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Platform, Alert, Image, Animated } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Platform, Alert, Image, Animated, useWindowDimensions } from 'react-native';
 import { getTodaySteps, getTodayActiveCalories, requestHealthPermissions } from '../services/HealthService';
 import { useTheme } from '../context/ThemeContext';
 
@@ -12,6 +12,7 @@ import ProfileScreen from './ProfileScreen';
 
 const HomeScreen = ({ route, navigation }: { route: any; navigation: any }) => {
   const { isDarkMode } = useTheme();
+  const { width } = useWindowDimensions();
   const theme = {
     bg: isDarkMode ? '#131315' : '#F8F9FA',
     card: isDarkMode ? '#1C1C1E' : '#FFFFFF',
@@ -181,18 +182,42 @@ const HomeScreen = ({ route, navigation }: { route: any; navigation: any }) => {
     }
   };
 
+  const isLarge = width >= 768;
+  const bottomBarWidth = isLarge ? 800 : '100%';
+  const bottomBarLeft = isLarge ? (width - 800) / 2 : 0;
+
   return (
     <View style={[styles.mainContainer, { backgroundColor: theme.bg }]}>
       <ScrollView
         style={styles.scrollContainer}
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[
+          styles.scrollContent,
+          isLarge && { maxWidth: 800, alignSelf: 'center', width: '100%' }
+        ]}
         showsVerticalScrollIndicator={false}
       >
         {renderTabContent()}
       </ScrollView>
 
       {/* Fixed Custom Bottom Navigation Tab Bar */}
-      <View style={[styles.bottomTabBar, { backgroundColor: theme.card, borderColor: theme.border }]}>
+      <View style={[
+        styles.bottomTabBar,
+        {
+          backgroundColor: theme.card,
+          borderColor: theme.border,
+          width: bottomBarWidth,
+          left: bottomBarLeft,
+          right: isLarge ? undefined : 0,
+          bottom: isLarge ? 15 : 0,
+          borderRadius: isLarge ? 24 : 0,
+          borderBottomLeftRadius: isLarge ? 24 : 0,
+          borderBottomRightRadius: isLarge ? 24 : 0,
+          borderWidth: isLarge ? 1 : 0,
+          paddingBottom: isLarge ? 10 : (Platform.OS === 'ios' ? 24 : 10),
+          shadowOpacity: isLarge ? 0.12 : 0.05,
+          shadowRadius: isLarge ? 15 : 10,
+        }
+      ]}>
         <TouchableOpacity style={styles.tabBarButton} onPress={() => handleTabPress('dashboard')}>
           <Animated.View style={[styles.iconWrapper, activeTab === 'dashboard' && styles.iconWrapperActive, { transform: [{ scale: tabScales.dashboard }] }]}>
             <Image

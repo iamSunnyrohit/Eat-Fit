@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, TextInput, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image, TextInput, ScrollView, useWindowDimensions } from 'react-native';
 import { useTheme } from '../context/ThemeContext';
 
 const ExerciseScreen: React.FC = () => {
   const { isDarkMode } = useTheme();
+  const { width } = useWindowDimensions();
+  const isLarge = width >= 768;
   const theme = {
     bg: isDarkMode ? '#131315' : '#F8F9FA',
     card: isDarkMode ? '#1C1C1E' : '#FFFFFF',
@@ -149,23 +151,25 @@ const ExerciseScreen: React.FC = () => {
           </TouchableOpacity>
         </View>
 
-        {filteredWorkouts.map((workout) => (
-          <View key={workout.id} style={[styles.workoutVideoCard, { backgroundColor: theme.card }]}>
-            <View style={styles.videoThumbnailWrapper}>
-              <Image source={{ uri: workout.image }} style={styles.videoThumbnail} resizeMode="cover" />
-              <View style={[styles.difficultyBadge, { backgroundColor: isDarkMode ? 'rgba(0, 0, 0, 0.75)' : 'rgba(255, 255, 255, 0.9)' }]}>
-                <Text style={[styles.difficultyText, { color: theme.text }]}>⚡ {workout.tag}</Text>
+        <View style={[styles.workoutGrid, isLarge && styles.workoutGridLarge]}>
+          {filteredWorkouts.map((workout) => (
+            <View key={workout.id} style={[styles.workoutVideoCard, isLarge && styles.workoutVideoCardLarge, { backgroundColor: theme.card }]}>
+              <View style={styles.videoThumbnailWrapper}>
+                <Image source={{ uri: workout.image }} style={styles.videoThumbnail} resizeMode="cover" />
+                <View style={[styles.difficultyBadge, { backgroundColor: isDarkMode ? 'rgba(0, 0, 0, 0.75)' : 'rgba(255, 255, 255, 0.9)' }]}>
+                  <Text style={[styles.difficultyText, { color: theme.text }]}>⚡ {workout.tag}</Text>
+                </View>
+              </View>
+              <View style={styles.workoutMeta}>
+                <Text style={[styles.workoutTitle, { color: theme.text }]}>{workout.title}</Text>
+                <View style={styles.workoutDetailsRow}>
+                  <Text style={[styles.detailText, { color: theme.subText }]}>⏱️ {workout.duration}</Text>
+                  <Text style={[styles.detailText, { color: theme.subText, marginLeft: 16 }]}>🔥 {workout.calories}</Text>
+                </View>
               </View>
             </View>
-            <View style={styles.workoutMeta}>
-              <Text style={[styles.workoutTitle, { color: theme.text }]}>{workout.title}</Text>
-              <View style={styles.workoutDetailsRow}>
-                <Text style={[styles.detailText, { color: theme.subText }]}>⏱️ {workout.duration}</Text>
-                <Text style={[styles.detailText, { color: theme.subText, marginLeft: 16 }]}>🔥 {workout.calories}</Text>
-              </View>
-            </View>
-          </View>
-        ))}
+          ))}
+        </View>
       </View>
 
       {/* Exercise Catalog directory */}
@@ -215,9 +219,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   avatarContainer: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    borderWidth: 2,
+    borderColor: '#24C76D',
     overflow: 'hidden',
     backgroundColor: '#E5E7EB',
   },
@@ -488,6 +494,18 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#9CA3AF',
     fontWeight: 'bold',
+  },
+  workoutGrid: {
+    width: '100%',
+  },
+  workoutGridLarge: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+  },
+  workoutVideoCardLarge: {
+    width: '48%',
+    marginHorizontal: '1%',
   },
 });
 

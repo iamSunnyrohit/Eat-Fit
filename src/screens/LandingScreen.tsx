@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
   Text,
@@ -9,12 +9,41 @@ import {
   Pressable,
   Platform,
   ImageBackground,
-  Animated
+  Animated,
+  useWindowDimensions
 } from 'react-native';
 
 const LandingScreen = ({ navigation }: { navigation: any }) => {
   const [selectedCard, setSelectedCard] = useState<number>(1);
   const scrollY = useRef(new Animated.Value(0)).current;
+  const { width } = useWindowDimensions();
+  const isLarge = width >= 768;
+  const isSmallMobile = width < 500;
+
+  // Scanner animation
+  const scanAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(scanAnim, {
+          toValue: 1,
+          duration: 3000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(scanAnim, {
+          toValue: 0,
+          duration: 3000,
+          useNativeDriver: true,
+        })
+      ])
+    ).start();
+  }, [scanAnim]);
+
+  const scannerTranslateY = scanAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, 275], // mealImage height (300) minus scanLine height (3)
+  });
 
   // Hero Section Parallax and Zoom
   const heroScale = scrollY.interpolate({
@@ -112,7 +141,7 @@ const LandingScreen = ({ navigation }: { navigation: any }) => {
       )}
     >
       {/* Top Header Bar */}
-      <View style={styles.header}>
+      <View style={[styles.header, isLarge && { maxWidth: 1100, alignSelf: 'center' }]}>
         <Text style={styles.headerLogo}>Eat & Fit</Text>
         <TouchableOpacity
           style={styles.headerLoginBtn}
@@ -131,6 +160,8 @@ const LandingScreen = ({ navigation }: { navigation: any }) => {
           ],
           opacity: heroOpacity,
           width: '100%',
+          maxWidth: 1100,
+          alignSelf: 'center',
         }}
       >
         <ImageBackground
@@ -140,17 +171,17 @@ const LandingScreen = ({ navigation }: { navigation: any }) => {
           resizeMode="cover"
         >
           <View style={styles.heroOverlay}>
-            {/* Tagline & Description group to center vertically */}
-            <View style={{ alignItems: 'center', flex: 1, justifyContent: 'center', width: '100%' }}>
+            {/* Tagline & Description group */}
+            <View style={{ alignItems: 'center', width: '100%', paddingVertical: 10 }}>
               <Text style={styles.tagline}>Precision Fitness,{"\n"}<Text style={styles.greenText}>AI-Powered</Text></Text>
               <Text style={styles.description}>
                 The ultimate high-performance ecosystem integrating clinical nutritional precision with data-driven movement. Experience health tracking re-engineered for the elite.
               </Text>
             </View>
 
-            {/* Main Hero CTA - positioned 65px above the stats card */}
+            {/* Main Hero CTA */}
             <TouchableOpacity
-              style={[styles.heroCtaBtn, { marginBottom: 65 }]}
+              style={[styles.heroCtaBtn, { marginBottom: 30 }]}
               onPress={() => navigation.navigate('Auth')}
             >
               <Text style={styles.heroCtaText}>Get Started  →</Text>
@@ -183,40 +214,49 @@ const LandingScreen = ({ navigation }: { navigation: any }) => {
           opacity: sec1Opacity,
           transform: [{ translateY: sec1TranslateY }],
           width: '100%',
+          maxWidth: 1100,
+          alignSelf: 'center',
         }}
       >
-        <View style={styles.section}>
-          <Text style={styles.sectionHeader}>Scan. Identify. Track.</Text>
-          <Text style={styles.sectionSub}>
-            Our proprietary neural engine identifies ingredients from a single photo. Point, shoot, and maintain clinical precision.
-          </Text>
+        <View style={[styles.section, isLarge && styles.rowSection]}>
+          <View style={isLarge ? [styles.leftCol, { marginRight: 40 }] : null}>
+            <Text style={styles.sectionHeader}>Scan. Identify. Track.</Text>
+            <Text style={styles.sectionSub}>
+              Our proprietary neural engine identifies ingredients from a single photo. Point, shoot, and maintain clinical precision.
+            </Text>
+          </View>
 
-          <View style={styles.mockScannerCard}>
-            <Image
-              source={{ uri: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDpOwktnkXU58s3Mj6UiWnSpYHjJ1yz_4pc2Atg1AnUVj0D8Mkfo9DTA6h6x6Qy7u_XFcqE3n0QOA3c4WhKnMTDJNZOxz9-hc6_JfkETlvp1EusqjorFDXhLgcKsEgPyrxXDV2gZxDJd8TE8nh2KlI2YWxHOfhA5JSqRE8RaFQcVLjGxhp1czTwpTihjRyQx3PV_lO_n_Hk8REmFVNUesaVDuf05sQ5nn_bCgRxGgyqFu3PNq8PZ2g1hYiw0Qg9OPfAEmWwJkyjHQ' }}
-              style={styles.mealImage}
-              resizeMode="cover"
-            />
-            <View style={styles.scannerHeader}>
-              <View style={styles.scannerBadge}>
-                <Text style={styles.scannerBadgeText}>● SCANNING...</Text>
+          <View style={[isLarge ? styles.rightCol : null, { width: '100%' }]}>
+            <View style={styles.mockScannerCard}>
+              <View style={styles.mealImageContainer}>
+                <Image
+                  source={{ uri: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDpOwktnkXU58s3Mj6UiWnSpYHjJ1yz_4pc2Atg1AnUVj0D8Mkfo9DTA6h6x6Qy7u_XFcqE3n0QOA3c4WhKnMTDJNZOxz9-hc6_JfkETlvp1EusqjorFDXhLgcKsEgPyrxXDV2gZxDJd8TE8nh2KlI2YWxHOfhA5JSqRE8RaFQcVLjGxhp1czTwpTihjRyQx3PV_lO_n_Hk8REmFVNUesaVDuf05sQ5nn_bCgRxGgyqFu3PNq8PZ2g1hYiw0Qg9OPfAEmWwJkyjHQ' }}
+                  style={styles.mealImage}
+                  resizeMode="cover"
+                />
+                <Animated.View style={[styles.scanLine, { transform: [{ translateY: scannerTranslateY }] }]} />
               </View>
-              <Text style={styles.mealTitle}>Salmon Power Bowl</Text>
-              <Text style={styles.kcalCount}>642 kcal</Text>
-            </View>
+              <View style={styles.scannerHeader}>
+                <View style={styles.scannerBadge}>
+                  <Text style={styles.scannerBadgeText}>● SCANNING...</Text>
+                </View>
+                <Text style={styles.mealTitle}>Salmon Power Bowl</Text>
+                <Text style={styles.kcalCount}>642 kcal</Text>
+              </View>
 
-            <View style={styles.macroGrid}>
-              <View style={styles.macroCell}>
-                <Text style={styles.macroLabel}>Protein</Text>
-                <Text style={[styles.macroVal, { color: '#56e472' }]}>42g</Text>
-              </View>
-              <View style={styles.macroCell}>
-                <Text style={styles.macroLabel}>Carbs</Text>
-                <Text style={[styles.macroVal, { color: '#aac7ff' }]}>38g</Text>
-              </View>
-              <View style={styles.macroCell}>
-                <Text style={styles.macroLabel}>Fats</Text>
-                <Text style={[styles.macroVal, { color: '#ffb8af' }]}>22g</Text>
+              <View style={styles.macroGrid}>
+                <View style={styles.macroCell}>
+                  <Text style={styles.macroLabel}>Protein</Text>
+                  <Text style={[styles.macroVal, { color: '#56e472' }]}>42g</Text>
+                </View>
+                <View style={styles.macroCell}>
+                  <Text style={styles.macroLabel}>Carbs</Text>
+                  <Text style={[styles.macroVal, { color: '#aac7ff' }]}>38g</Text>
+                </View>
+                <View style={styles.macroCell}>
+                  <Text style={styles.macroLabel}>Fats</Text>
+                  <Text style={[styles.macroVal, { color: '#ffb8af' }]}>22g</Text>
+                </View>
               </View>
             </View>
           </View>
@@ -229,38 +269,80 @@ const LandingScreen = ({ navigation }: { navigation: any }) => {
           opacity: sec2Opacity,
           transform: [{ translateY: sec2TranslateY }],
           width: '100%',
+          maxWidth: 1100,
+          alignSelf: 'center',
         }}
       >
-        <View style={styles.section}>
-          <Text style={styles.sectionHeader}>Master Your Macros</Text>
-          <Text style={styles.sectionSub}>
-            Deep-dive into physiological metrics. Seamless wearable synchronization keeps your stats updated.
-          </Text>
+        <View style={[styles.section, isLarge && styles.rowSection]}>
+          {isLarge ? (
+            <>
+              <View style={[styles.rightCol, { marginRight: 40 }]}>
+                <View style={styles.glassCard}>
+                  <View style={styles.progressHeader}>
+                    <Text style={styles.progressTitle}>Daily Target Progress</Text>
+                    <Text style={styles.progressPercent}>75%</Text>
+                  </View>
+                  <View style={styles.miniProgressContainer}>
+                    <Text style={styles.miniLabel}>Protein (142 / 180g)</Text>
+                    <View style={styles.progressBarBg}>
+                      <View style={[styles.progressBarFill, { width: '78%' }]} />
+                    </View>
+                  </View>
 
-          <View style={styles.glassCard}>
-            <View style={styles.progressHeader}>
-              <Text style={styles.progressTitle}>Daily Target Progress</Text>
-              <Text style={styles.progressPercent}>75%</Text>
-            </View>
-            <View style={styles.miniProgressContainer}>
-              <Text style={styles.miniLabel}>Protein (142 / 180g)</Text>
-              <View style={styles.progressBarBg}>
-                <View style={[styles.progressBarFill, { width: '78%' }]} />
+                  {/* Sync status cards */}
+                  <View style={styles.syncRow}>
+                    <View style={styles.syncCard}>
+                      <Text style={styles.syncTitle}>Apple HealthKit</Text>
+                      <Text style={styles.syncSub}>Synced</Text>
+                    </View>
+                    <View style={styles.syncCard}>
+                      <Text style={styles.syncTitle}>Health Connect</Text>
+                      <Text style={styles.syncSub}>Synced</Text>
+                    </View>
+                  </View>
+                </View>
               </View>
-            </View>
 
-            {/* Sync status cards */}
-            <View style={styles.syncRow}>
-              <View style={styles.syncCard}>
-                <Text style={styles.syncTitle}>Apple HealthKit</Text>
-                <Text style={styles.syncSub}>Synced</Text>
+              <View style={styles.leftCol}>
+                <Text style={styles.sectionHeader}>Master Your Macros</Text>
+                <Text style={styles.sectionSub}>
+                  Deep-dive into physiological metrics. Seamless wearable synchronization keeps your stats updated.
+                </Text>
               </View>
-              <View style={styles.syncCard}>
-                <Text style={styles.syncTitle}>Health Connect</Text>
-                <Text style={styles.syncSub}>Synced</Text>
+            </>
+          ) : (
+            <>
+              <Text style={styles.sectionHeader}>Master Your Macros</Text>
+              <Text style={styles.sectionSub}>
+                Deep-dive into physiological metrics. Seamless wearable synchronization keeps your stats updated.
+              </Text>
+
+              <View style={styles.glassCard}>
+                <View style={styles.progressHeader}>
+                  <Text style={styles.progressTitle}>Daily Target Progress</Text>
+                  <Text style={styles.progressPercent}>75%</Text>
+                </View>
+                <View style={styles.miniProgressContainer}>
+                  <Text style={styles.miniLabel}>Protein (142 / 180g)</Text>
+                  <View style={styles.progressBarBg}>
+                    <View style={[styles.progressBarFill, { width: '78%' }]} />
+                  </View>
+                </View>
+
+                {/* Sync status cards */}
+                <View style={styles.syncRow}>
+                  <View style={styles.syncCard}>
+                    <Text style={styles.syncTitle}>Apple HealthKit</Text>
+                    <Text style={styles.syncSub}>Synced</Text>
+                  </View>
+                  <View style={styles.syncCard}>
+                    <Text style={styles.syncTitle}>Health Connect</Text>
+                    <Text style={styles.syncSub}>Synced</Text>
+                  </View>
+                </View>
               </View>
-            </View>
-          </View>
+            </>
+          )}
         </View>
       </Animated.View>
 
@@ -270,6 +352,8 @@ const LandingScreen = ({ navigation }: { navigation: any }) => {
           opacity: sec3Opacity,
           transform: [{ translateY: sec3TranslateY }],
           width: '100%',
+          maxWidth: 1100,
+          alignSelf: 'center',
         }}
       >
         <View style={styles.section}>
@@ -278,9 +362,9 @@ const LandingScreen = ({ navigation }: { navigation: any }) => {
             Professional guidance adapted to your specific recovery capacity.
           </Text>
 
-          <View style={styles.programsList}>
+          <View style={[styles.programsList, isLarge && styles.rowPrograms]}>
             {/* Yoga Card */}
-            <View style={[styles.programCard, { borderLeftColor: '#56e472' }]}>
+            <View style={[styles.programCard, isLarge && styles.programCardLarge, { borderLeftColor: '#56e472' }]}>
               <Image
                 source={{ uri: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBrZ_Zouy3bGmwdbCRqEfh1no9AP6svHumn01VlzCxDASEe2F51Z79tTad9PBg2-tYgcf6hQAObrQnPSCgLd5KmlNotsrfcGcVzCgQkuQrgUQEiJMw87yvi9iK6x5643ZaDrbd3OHkFte_8NkwLJjtvIFuGQdgdC_PvYNt5VFxl99wf31IWzwS6Wb_RJQD-3aGV63QdHola6JOJb12Yg91bOHGhfX3XMyEJZihW9__stoyTE8fg7fcMsfy3v1LyUjBx8sXQQMIMhw' }}
                 style={styles.programImage}
@@ -295,7 +379,7 @@ const LandingScreen = ({ navigation }: { navigation: any }) => {
             </View>
 
             {/* Strength Card */}
-            <View style={[styles.programCard, { borderLeftColor: '#aac7ff' }]}>
+            <View style={[styles.programCard, isLarge && styles.programCardLarge, { borderLeftColor: '#aac7ff' }]}>
               <Image
                 source={{ uri: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCcx6Tm457lPhQBgKrFCsk4BePcOktwGk7hlKRv4Sj5MDhPPgzZ1Ezuwc8NpWSMDwnDbO91BXwr9oE_JghOo8Z4JY-q64HTP1_asKhv3-TrQZumthJKg7pSv85Fsc22PfIdvBozCt0wVVBQUXHGhH5cSOWxt6ZCFqzjaiUG_1kJFm1JEz65arklExHq-7QGk7jzWNR3RmaPT5xnMt3hCUPE19DdTjTHfvigU9TkwGzwVnuK3FL-tSdlw2X44VLCs4zgMhrSo0yWJQ' }}
                 style={styles.programImage}
@@ -310,7 +394,7 @@ const LandingScreen = ({ navigation }: { navigation: any }) => {
             </View>
 
             {/* Pilates Card */}
-            <View style={[styles.programCard, { borderLeftColor: '#ffb8af' }]}>
+            <View style={[styles.programCard, isLarge && styles.programCardLarge, { borderLeftColor: '#ffb8af' }]}>
               <Image
                 source={{ uri: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCmgg0nh2TgLSZbCaEx9vE8oVJTCpWdGRtXxXmvVpwvmnAMb-GuyO9U7zxkOR4fctLz_BM0cxmTx0CoNryi1ZI4eeUrqtrQMlt53DHsKB_gqZx6BK11VZ7HhqSyruMpdDqC5eOLbqTeEaB4fv1OUtWOcguj8UBgVDKD4O4vXwao7eCCtMBFNj8KjUlG_OV9zU08gBlP25bgkbuO8laFK30i4_rMVXXYRPQgEPuzUp7WsDMWjHryTeCPafH5-yfcwUipY_TJ1LiMNg' }}
                 style={styles.programImage}
@@ -333,6 +417,8 @@ const LandingScreen = ({ navigation }: { navigation: any }) => {
           opacity: proOpacity,
           transform: [{ translateY: proTranslateY }],
           width: '100%',
+          maxWidth: 1100,
+          alignSelf: 'center',
         }}
       >
         <View style={styles.proSection}>
@@ -343,15 +429,22 @@ const LandingScreen = ({ navigation }: { navigation: any }) => {
           </Text>
 
           {/* Price Cards Row */}
-          <View style={styles.priceCardsRow}>
+          <View style={[styles.priceCardsRow, isSmallMobile && styles.priceCardsRowVertical]}>
             {/* Monthly Plan */}
             <Pressable
               onPress={() => setSelectedCard(0)}
               style={[
                 styles.priceCard,
+                isSmallMobile && styles.priceCardVertical,
                 {
                   borderColor: selectedCard === 0 ? '#56e472' : '#3a3a3c',
-                  borderWidth: selectedCard === 0 ? 1.5 : 1,
+                  borderWidth: selectedCard === 0 ? 1.8 : 1,
+                  backgroundColor: selectedCard === 0 ? '#262830' : '#1e2025',
+                  shadowColor: selectedCard === 0 ? '#56e472' : 'transparent',
+                  shadowOpacity: selectedCard === 0 ? 0.22 : 0,
+                  shadowRadius: 8,
+                  shadowOffset: { width: 0, height: 4 },
+                  transform: [{ scale: selectedCard === 0 ? 1.03 : 1.0 }],
                 }
               ]}
             >
@@ -367,9 +460,16 @@ const LandingScreen = ({ navigation }: { navigation: any }) => {
               onPress={() => setSelectedCard(1)}
               style={[
                 styles.priceCard,
+                isSmallMobile && styles.priceCardVertical,
                 {
                   borderColor: selectedCard === 1 ? '#56e472' : '#3a3a3c',
-                  borderWidth: selectedCard === 1 ? 1.5 : 1,
+                  borderWidth: selectedCard === 1 ? 1.8 : 1,
+                  backgroundColor: selectedCard === 1 ? '#262830' : '#1e2025',
+                  shadowColor: selectedCard === 1 ? '#56e472' : 'transparent',
+                  shadowOpacity: selectedCard === 1 ? 0.22 : 0,
+                  shadowRadius: 8,
+                  shadowOffset: { width: 0, height: 4 },
+                  transform: [{ scale: selectedCard === 1 ? 1.03 : 1.0 }],
                 }
               ]}
             >
@@ -388,9 +488,16 @@ const LandingScreen = ({ navigation }: { navigation: any }) => {
               onPress={() => setSelectedCard(2)}
               style={[
                 styles.priceCard,
+                isSmallMobile && styles.priceCardVertical,
                 {
                   borderColor: selectedCard === 2 ? '#56e472' : '#3a3a3c',
-                  borderWidth: selectedCard === 2 ? 1.5 : 1,
+                  borderWidth: selectedCard === 2 ? 1.8 : 1,
+                  backgroundColor: selectedCard === 2 ? '#262830' : '#1e2025',
+                  shadowColor: selectedCard === 2 ? '#56e472' : 'transparent',
+                  shadowOpacity: selectedCard === 2 ? 0.22 : 0,
+                  shadowRadius: 8,
+                  shadowOffset: { width: 0, height: 4 },
+                  transform: [{ scale: selectedCard === 2 ? 1.03 : 1.0 }],
                 }
               ]}
             >
@@ -410,6 +517,8 @@ const LandingScreen = ({ navigation }: { navigation: any }) => {
           opacity: footerOpacity,
           transform: [{ translateY: footerTranslateY }],
           width: '100%',
+          maxWidth: 1100,
+          alignSelf: 'center',
         }}
       >
         <View style={styles.footerPortal}>
@@ -423,7 +532,7 @@ const LandingScreen = ({ navigation }: { navigation: any }) => {
         </View>
       </Animated.View>
 
-      <View style={{ height: 40 }} />
+      <View style={{ height: 80 }} />
     </Animated.ScrollView>
   );
 };
@@ -433,6 +542,7 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     backgroundColor: '#131315',
     padding: 20,
+    width: '100%',
   },
   header: {
     marginTop: Platform.OS === 'ios' ? 45 : 35,
@@ -462,7 +572,6 @@ const styles = StyleSheet.create({
   },
   heroBackground: {
     width: '100%',
-    height: Platform.OS === 'android' ? 800 : 740,
     borderRadius: 24,
     overflow: 'hidden',
     marginBottom: 48,
@@ -471,12 +580,12 @@ const styles = StyleSheet.create({
     borderRadius: 24,
   },
   heroOverlay: {
-    flex: 1,
+    width: '100%',
     backgroundColor: 'rgba(19, 19, 21, 0.78)',
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 24,
-    paddingVertical: 40,
+    paddingVertical: 50,
   },
   heroStatsCard: {
     flexDirection: 'row',
@@ -537,12 +646,15 @@ const styles = StyleSheet.create({
   },
   heroCtaBtn: {
     backgroundColor: '#56e472',
-    paddingVertical: 14,
-    paddingHorizontal: 36,
+    paddingVertical: 15,
+    paddingHorizontal: 40,
     borderRadius: 12,
     alignItems: 'center',
-    boxShadow: '0px 4px 5px rgba(86, 228, 114, 0.3)',
-    elevation: 4,
+    shadowColor: '#56e472',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.35,
+    shadowRadius: 6,
+    elevation: 5,
   },
   heroCtaText: {
     color: '#002107',
@@ -572,6 +684,7 @@ const styles = StyleSheet.create({
     padding: 24,
     borderWidth: 1,
     borderColor: '#3a3a3c',
+    width: '100%',
   },
   scannerHeader: {
     flexDirection: 'row',
@@ -728,13 +841,17 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   proSection: {
-    backgroundColor: 'rgba(86, 228, 114, 0.05)',
+    backgroundColor: 'rgba(86, 228, 114, 0.08)',
     borderRadius: 20,
-    padding: 20,
-    borderWidth: 1,
-    borderColor: 'rgba(86, 228, 114, 0.2)',
+    padding: 24,
+    borderWidth: 1.5,
+    borderColor: 'rgba(86, 228, 114, 0.35)',
     marginBottom: 44,
     width: '100%',
+    shadowColor: '#56e472',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.12,
+    shadowRadius: 15,
   },
   proLabel: {
     fontSize: 11,
@@ -744,7 +861,7 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   proTitle: {
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: 'bold',
     color: '#ffffff',
     marginBottom: 8,
@@ -763,35 +880,35 @@ const styles = StyleSheet.create({
   },
   priceCard: {
     flex: 1,
-    backgroundColor: '#1c1c1e',
+    backgroundColor: '#1e2025',
     borderRadius: 14,
     padding: 12,
     marginHorizontal: 4,
     borderWidth: 1,
-    borderColor: '#3a3a3c',
+    borderColor: '#3a3a3d',
     alignItems: 'center',
     justifyContent: 'space-between',
     minHeight: 140,
   },
   popularCard: {
     borderColor: '#56e472',
-    borderWidth: 1.5,
+    borderWidth: 1.8,
   },
   priceTitle: {
-    fontSize: 12,
+    fontSize: 14,
     fontWeight: 'bold',
     color: '#ffffff',
     textAlign: 'center',
   },
   priceSub: {
-    fontSize: 9,
-    color: '#939397',
+    fontSize: 10,
+    color: '#a9abb0',
     marginTop: 3,
     textAlign: 'center',
     lineHeight: 12,
   },
   priceVal: {
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: 'bold',
     color: '#56e472',
     textAlign: 'center',
@@ -817,35 +934,37 @@ const styles = StyleSheet.create({
   },
   footerPortal: {
     alignItems: 'center',
-    marginVertical: 10,
+    marginVertical: 45,
     width: '100%',
   },
   footerText: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: 'bold',
     color: '#ffffff',
-    marginBottom: 16,
+    marginBottom: 20,
     textAlign: 'center',
   },
   footerCtaBtn: {
     backgroundColor: '#56e472',
-    paddingVertical: 16,
+    paddingVertical: 18,
     width: '100%',
     borderRadius: 12,
     alignItems: 'center',
-    boxShadow: '0px 4px 5px rgba(86, 228, 114, 0.3)',
-    elevation: 4,
+    shadowColor: '#56e472',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.45,
+    shadowRadius: 10,
+    elevation: 6,
   },
   footerCtaText: {
     color: '#002107',
-    fontSize: 16,
-    fontWeight: 'bold',
+    fontSize: 18,
+    fontWeight: '800',
   },
   mealImage: {
     width: '100%',
-    height: 300,
+    height: '100%',
     borderRadius: 14,
-    marginBottom: 16,
   },
   programImage: {
     position: 'absolute',
@@ -863,6 +982,63 @@ const styles = StyleSheet.create({
     bottom: 0,
     backgroundColor: 'rgba(53, 53, 67, 0.65)',
     borderRadius: 14,
+  },
+  // Responsive / Custom Layout extensions
+  rowSection: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    width: '100%',
+  },
+  leftCol: {
+    flex: 1,
+  },
+  rightCol: {
+    flex: 1.1,
+  },
+  rowPrograms: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+  },
+  programCardLarge: {
+    flex: 1,
+    marginHorizontal: 8,
+    height: 250,
+  },
+  priceCardsRowVertical: {
+    flexDirection: 'column',
+  },
+  priceCardVertical: {
+    width: '100%',
+    marginHorizontal: 0,
+    marginBottom: 12,
+    minHeight: 110,
+  },
+  mealImageContainer: {
+    position: 'relative',
+    width: '100%',
+    height: 300,
+    borderRadius: 14,
+    overflow: 'hidden',
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: '#3a3a3c',
+    shadowColor: '#56e472',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 10,
+  },
+  scanLine: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    height: 3,
+    backgroundColor: '#56e472',
+    shadowColor: '#56e472',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.8,
+    shadowRadius: 8,
   },
 });
 
