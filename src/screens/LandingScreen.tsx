@@ -29,12 +29,12 @@ const LandingScreen = ({ navigation }: { navigation: any }) => {
         Animated.timing(scanAnim, {
           toValue: 1,
           duration: 3000,
-          useNativeDriver: true,
+          useNativeDriver: Platform.OS !== 'web',
         }),
         Animated.timing(scanAnim, {
           toValue: 0,
           duration: 3000,
-          useNativeDriver: true,
+          useNativeDriver: Platform.OS !== 'web',
         })
       ])
     ).start();
@@ -137,7 +137,7 @@ const LandingScreen = ({ navigation }: { navigation: any }) => {
       scrollEventThrottle={16}
       onScroll={Animated.event(
         [{ nativeEvent: { contentOffset: { y: scrollY } } }],
-        { useNativeDriver: true }
+        { useNativeDriver: Platform.OS !== 'web' }
       )}
     >
       {/* Top Header Bar */}

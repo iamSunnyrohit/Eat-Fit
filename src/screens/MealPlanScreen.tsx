@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, TextInput, ActivityIndicator, Alert, Animated } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image, TextInput, ActivityIndicator, Alert, Animated, Platform } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { useTheme } from '../context/ThemeContext';
 
@@ -45,12 +45,12 @@ const MealPlanScreen: React.FC<MealPlanScreenProps> = ({
           Animated.timing(scanAnim, {
             toValue: 1,
             duration: 2000,
-            useNativeDriver: true,
+            useNativeDriver: Platform.OS !== 'web',
           }),
           Animated.timing(scanAnim, {
             toValue: 0,
             duration: 2000,
-            useNativeDriver: true,
+            useNativeDriver: Platform.OS !== 'web',
           })
         ])
       ).start();

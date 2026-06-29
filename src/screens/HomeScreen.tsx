@@ -115,13 +115,13 @@ const HomeScreen = ({ route, navigation }: { route: any; navigation: any }) => {
       Animated.timing(tabScales[tabName], {
         toValue: 0.82,
         duration: 80,
-        useNativeDriver: true,
+        useNativeDriver: Platform.OS !== 'web',
       }),
       Animated.spring(tabScales[tabName], {
         toValue: 1.0,
         friction: 4,
         tension: 40,
-        useNativeDriver: true,
+        useNativeDriver: Platform.OS !== 'web',
       }),
     ]).start();
 
