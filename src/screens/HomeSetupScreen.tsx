@@ -346,10 +346,7 @@ const styles = StyleSheet.create({
     width: '100%',
     maxWidth: 550,
     alignSelf: 'center',
-    shadowColor: '#34c759',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 5,
+    boxShadow: '0px 4px 5px rgba(52, 199, 89, 0.3)',
     elevation: 5,
   },
   saveButtonText: {

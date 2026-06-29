@@ -440,10 +440,7 @@ const LandingScreen = ({ navigation }: { navigation: any }) => {
                   borderColor: selectedCard === 0 ? '#56e472' : '#3a3a3c',
                   borderWidth: selectedCard === 0 ? 1.8 : 1,
                   backgroundColor: selectedCard === 0 ? '#262830' : '#1e2025',
-                  shadowColor: selectedCard === 0 ? '#56e472' : 'transparent',
-                  shadowOpacity: selectedCard === 0 ? 0.22 : 0,
-                  shadowRadius: 8,
-                  shadowOffset: { width: 0, height: 4 },
+                  boxShadow: selectedCard === 0 ? '0px 4px 8px rgba(86, 228, 114, 0.22)' : 'none',
                   transform: [{ scale: selectedCard === 0 ? 1.03 : 1.0 }],
                 }
               ]}
@@ -465,10 +462,7 @@ const LandingScreen = ({ navigation }: { navigation: any }) => {
                   borderColor: selectedCard === 1 ? '#56e472' : '#3a3a3c',
                   borderWidth: selectedCard === 1 ? 1.8 : 1,
                   backgroundColor: selectedCard === 1 ? '#262830' : '#1e2025',
-                  shadowColor: selectedCard === 1 ? '#56e472' : 'transparent',
-                  shadowOpacity: selectedCard === 1 ? 0.22 : 0,
-                  shadowRadius: 8,
-                  shadowOffset: { width: 0, height: 4 },
+                  boxShadow: selectedCard === 1 ? '0px 4px 8px rgba(86, 228, 114, 0.22)' : 'none',
                   transform: [{ scale: selectedCard === 1 ? 1.03 : 1.0 }],
                 }
               ]}
@@ -493,10 +487,7 @@ const LandingScreen = ({ navigation }: { navigation: any }) => {
                   borderColor: selectedCard === 2 ? '#56e472' : '#3a3a3c',
                   borderWidth: selectedCard === 2 ? 1.8 : 1,
                   backgroundColor: selectedCard === 2 ? '#262830' : '#1e2025',
-                  shadowColor: selectedCard === 2 ? '#56e472' : 'transparent',
-                  shadowOpacity: selectedCard === 2 ? 0.22 : 0,
-                  shadowRadius: 8,
-                  shadowOffset: { width: 0, height: 4 },
+                  boxShadow: selectedCard === 2 ? '0px 4px 8px rgba(86, 228, 114, 0.22)' : 'none',
                   transform: [{ scale: selectedCard === 2 ? 1.03 : 1.0 }],
                 }
               ]}
@@ -650,10 +641,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 40,
     borderRadius: 12,
     alignItems: 'center',
-    shadowColor: '#56e472',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.35,
-    shadowRadius: 6,
+    boxShadow: '0px 4px 6px rgba(86, 228, 114, 0.35)',
     elevation: 5,
   },
   heroCtaText: {
@@ -848,10 +836,7 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(86, 228, 114, 0.35)',
     marginBottom: 44,
     width: '100%',
-    shadowColor: '#56e472',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.12,
-    shadowRadius: 15,
+    boxShadow: '0px 6px 15px rgba(86, 228, 114, 0.12)',
   },
   proLabel: {
     fontSize: 11,
@@ -950,10 +935,7 @@ const styles = StyleSheet.create({
     width: '100%',
     borderRadius: 12,
     alignItems: 'center',
-    shadowColor: '#56e472',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.45,
-    shadowRadius: 10,
+    boxShadow: '0px 6px 10px rgba(86, 228, 114, 0.45)',
     elevation: 6,
   },
   footerCtaText: {
@@ -1024,10 +1006,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     borderWidth: 1,
     borderColor: '#3a3a3c',
-    shadowColor: '#56e472',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 10,
+    boxShadow: '0px 4px 10px rgba(86, 228, 114, 0.15)',
   },
   scanLine: {
     position: 'absolute',
@@ -1035,10 +1014,7 @@ const styles = StyleSheet.create({
     right: 0,
     height: 3,
     backgroundColor: '#56e472',
-    shadowColor: '#56e472',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.8,
-    shadowRadius: 8,
+    boxShadow: '0px 0px 8px rgba(86, 228, 114, 0.8)',
   },
 });
 

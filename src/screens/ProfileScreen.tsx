@@ -790,10 +790,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#E5E7EB',
-    shadowColor: '#24C76D',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.18,
-    shadowRadius: 10,
+    boxShadow: '0px 4px 10px rgba(36, 199, 109, 0.18)',
   },
   avatarImageBig: {
     width: 94,
@@ -1638,10 +1635,7 @@ const styles = StyleSheet.create({
     position: 'relative',
     borderWidth: 1.5,
     borderColor: '#3a3a3c',
-    shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
+    boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
     elevation: 3,
   },
   securityBannerImage: {

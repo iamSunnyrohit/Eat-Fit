@@ -305,10 +305,7 @@ const styles = StyleSheet.create({
     paddingBottom: Platform.OS === 'ios' ? 24 : 10,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
-    shadowColor: '#000000',
-    shadowOffset: { width: 0, height: -4 },
-    shadowOpacity: 0.05,
-    shadowRadius: 10,
+    boxShadow: '0px -4px 10px rgba(0, 0, 0, 0.05)',
     elevation: 8,
   },
   tabBarButton: {
